@@ -316,6 +316,113 @@ function ConfettiBurst({ triggerKey }) {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   OnboardingModal — popup de entrada: nome, email e país.
+   Salva em localStorage. Fecha e repassa dados ao app.
+   ------------------------------------------------------------------------ */
+function OnboardingModal({ countries, onComplete }) {
+  const sorted = [
+    ...countries.filter((c) => c.iso2 === "AR"),
+    ...countries.filter((c) => ["BR","MX","CO","UY","CL","PE","ES","PT"].includes(c.iso2)),
+    ...countries.filter((c) => !["AR","BR","MX","CO","UY","CL","PE","ES","PT"].includes(c.iso2)),
+  ];
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [iso2, setIso2] = useState("AR");
+  const [error, setError] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) { setError("Ingresá tu nombre."); return; }
+    if (!email.includes("@")) { setError("Email inválido."); return; }
+    try { localStorage.setItem("gfc_user", JSON.stringify({ name: name.trim(), email, iso2 })); } catch(_) {}
+    onComplete({ name: name.trim(), email, iso2 });
+  };
+
+  const country = sorted.find((c) => c.iso2 === iso2) || sorted[0];
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
+         style={{background:"rgba(0,0,0,0.85)", backdropFilter:"blur(12px)"}}>
+      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 gfc-enter gfc-enter-1"
+           style={{background:"linear-gradient(160deg,#0a1a12,#071009)", boxShadow:"0 0 60px rgba(16,185,129,0.25), 0 0 0 1px rgba(16,185,129,0.35)"}}>
+
+        {/* Logo + headline */}
+        <div className="text-center mb-6">
+          <div className="font-display text-2xl font-extrabold text-white">
+            Gloria<span style={{color:"var(--green)"}}>FC</span>
+          </div>
+          <h2 className="mt-2 font-display text-[28px] font-extrabold leading-tight text-white">
+            ¿Por quién vas<br/>a alentar?
+          </h2>
+          <p className="mt-2 text-sm" style={{color:"rgba(255,255,255,0.45)"}}>
+            Unite al ranking mundial de hinchada 2026.
+          </p>
+        </div>
+
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          {/* País */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu selección
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xl leading-none">{country.flag_emoji}</div>
+              <select value={iso2} onChange={(e) => setIso2(e.target.value)}
+                className="w-full appearance-none rounded-2xl pl-10 pr-8 py-3.5 text-sm font-semibold text-white outline-none cursor-pointer"
+                style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(16,185,129,0.35)"}}>
+                {sorted.map((c) => (
+                  <option key={c.iso2} value={c.iso2} className="bg-[#0d1411]">
+                    {c.flag_emoji} {c.name}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{color:"rgba(255,255,255,0.4)"}} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.41a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Nome */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu nombre
+            </label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+              placeholder="Ej.: Diego Armando" maxLength={32} autoComplete="name"
+              className="w-full rounded-2xl px-4 py-3.5 text-sm text-white outline-none"
+              style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)"}} />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu email
+            </label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="diego@ejemplo.com" autoComplete="email"
+              className="w-full rounded-2xl px-4 py-3.5 text-sm text-white outline-none"
+              style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)"}} />
+          </div>
+
+          {error && <p className="text-xs text-red-400 -mt-1">{error}</p>}
+
+          <button type="submit"
+            className="gfc-cta-pulse mt-1 w-full rounded-2xl py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{background:"var(--green)"}}>
+            {country.flag_emoji} ¡Entrar al ranking!
+          </button>
+
+          <p className="text-center text-[11px]" style={{color:"rgba(255,255,255,0.28)"}}>
+            Tu email es privado. Solo tu nombre aparece en el feed.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 Object.assign(window, {
-  LiveCounter, CountryBadge, LeaderboardRow, PackageCard, LogItem, CurrencySelector, ConfettiBurst,
+  LiveCounter, CountryBadge, LeaderboardRow, PackageCard, LogItem, CurrencySelector, ConfettiBurst, OnboardingModal,
 });

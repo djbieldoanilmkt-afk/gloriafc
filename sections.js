@@ -198,13 +198,66 @@ function LiveRanking({ countries, userIso2, changedId, motion, bare }) {
 /* ---------------------------------------------------------------------------
    SupportSection — pacotes com preço em moeda local + nome no mural.
    ------------------------------------------------------------------------ */
-function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry }) {
+function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry, rivalGap, brazilPoints }) {
   const currency = window.GFC.currencyForCountry(currencyCountry);
   const [sectionRef, revealClass] = useScrollReveal();
+
+  /* contador de apoiadores hoje — sobe lentamente para criar prova social */
+  const [todayCount, setTodayCount] = useState(1247 + Math.floor((Date.now() / 1000) % 300));
+  useEffect(() => {
+    const t = setInterval(() => setTodayCount((n) => n + Math.floor(Math.random() * 2 + 1)), 6000);
+    return () => clearInterval(t);
+  }, []);
+
+  const gapPositive = rivalGap !== null && rivalGap > 0;
+  const pct = brazilPoints > 0 && userCountry
+    ? Math.min(99, Math.floor((userCountry.total_points / brazilPoints) * 100))
+    : null;
 
   return (
     <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 py-10 sm:py-14 " + revealClass}>
       <div className="mx-auto max-w-3xl">
+
+        {/* === Barra de urgência === */}
+        {gapPositive && (
+          <div className="mb-7 rounded-2xl p-4 sm:p-5 gfc-box-neon"
+               style={{background:"linear-gradient(135deg,rgba(16,185,129,0.10),rgba(16,185,129,0.04))", border:"1px solid rgba(16,185,129,0.30)"}}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <div className="font-display text-lg sm:text-xl font-extrabold text-white leading-tight">
+                    {userCountry.flag_emoji} a <span style={{color:"var(--gold)"}}>{rivalGap.toLocaleString("es-AR")}</span> Glorias de 🇧🇷 Brasil
+                  </div>
+                  <div className="text-[12px] mt-0.5" style={{color:"rgba(255,255,255,0.45)"}}>
+                    Cada Gloria te acerca a la cima · Copa 2026
+                  </div>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-display text-2xl font-extrabold" style={{color:"var(--green-bright)"}}>{todayCount.toLocaleString("es-AR")}</div>
+                <div className="text-[10px] uppercase tracking-widest" style={{color:"rgba(255,255,255,0.40)"}}>apoyan hoy</div>
+              </div>
+            </div>
+            {pct !== null && (
+              <div className="mt-4">
+                <div className="flex justify-between text-[11px] mb-1.5" style={{color:"rgba(255,255,255,0.45)"}}>
+                  <span>{userCountry.flag_emoji} {userCountry.name}</span>
+                  <span style={{color:"var(--green-bright)"}}>{pct}% de Brasil</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.08)"}}>
+                  <div className="h-full rounded-full transition-all duration-1000"
+                       style={{width: pct + "%", background:"linear-gradient(90deg,var(--green),var(--green-bright))", boxShadow:"0 0 10px var(--green)"}}>
+                  </div>
+                </div>
+                <div className="mt-1.5 text-right text-[11px]" style={{color:"rgba(255,255,255,0.35)"}}>
+                  🇧🇷 Brasil 100%
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             kicker="Apoyar"
@@ -240,7 +293,7 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
             className="mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
           />
           <p className="mt-2 text-[11px] leading-relaxed text-white/35">
-            ⚠️ Al completar, tu nombre aparece públicamente en el feed "Últimas Glorias". Dejalo vacío para apoyar como Anónimo.
+            ⚠️ Al completar, tu nombre aparece publicamente en el feed "Ultimas Glorias". Dejalo vacio para apoyar como Anonimo.
           </p>
         </div>
       </div>

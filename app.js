@@ -38,7 +38,26 @@ function App() {
   const [toast, setToast] = useState(null);
   const [confettiKey, setConfettiKey] = useState(0);
 
-  const userIso2 = window.GFC.detectedCountry;
+  /* ----- onboarding modal -------------------------------------------- */
+  const [showModal, setShowModal] = useState(() => {
+    try { return !localStorage.getItem("gfc_user"); } catch(_) { return true; }
+  });
+
+  const handleModalComplete = ({ name, iso2 }) => {
+    setDisplayName(name);
+    setCurrencyCountry(iso2);
+    setUserIso2Override(iso2);
+    setShowModal(false);
+  };
+
+  const [userIso2Override, setUserIso2Override] = useState(() => {
+    try {
+      const saved = localStorage.getItem("gfc_user");
+      return saved ? JSON.parse(saved).iso2 : null;
+    } catch(_) { return null; }
+  });
+
+  const userIso2 = userIso2Override || window.GFC.detectedCountry;
   const userCountry = countries.find((c) => c.iso2 === userIso2);
   const sortedForRank = [...countries].sort((a, b) => b.total_points - a.total_points);
   const userRank = sortedForRank.findIndex((c) => c.iso2 === userIso2) + 1;
@@ -131,6 +150,21 @@ function App() {
         onCTA={scrollToApoiar}
       />
 
+      {/* Pacotes PRIMEIRO — máxima visibilidade */}
+      <SupportSection
+        packages={window.GFC.point_packages}
+        countries={countries}
+        currencyCountry={currencyCountry}
+        onCurrencyChange={setCurrencyCountry}
+        displayName={displayName}
+        onNameChange={setDisplayName}
+        onSupport={onSupport}
+        busyId={busyId}
+        userCountry={userCountry}
+        rivalGap={rivalGap}
+        brazilPoints={brazilCountry ? brazilCountry.total_points : 0}
+      />
+
       {/* Ranking + Feed lado a lado */}
       <section className="px-5 py-10 sm:py-14">
         <div className="mx-auto max-w-5xl">
@@ -142,18 +176,6 @@ function App() {
           </div>
         </div>
       </section>
-
-      <SupportSection
-        packages={window.GFC.point_packages}
-        countries={countries}
-        currencyCountry={currencyCountry}
-        onCurrencyChange={setCurrencyCountry}
-        displayName={displayName}
-        onNameChange={setDisplayName}
-        onSupport={onSupport}
-        busyId={busyId}
-        userCountry={userCountry}
-      />
 
       <SiteFooter />
 
@@ -169,6 +191,14 @@ function App() {
 
       {/* confetti ao apoiar */}
       <ConfettiBurst triggerKey={confettiKey} />
+
+      {/* modal de onboarding */}
+      {showModal && (
+        <OnboardingModal
+          countries={window.GFC.countries}
+          onComplete={handleModalComplete}
+        />
+      )}
 
       {/* toast de confirmação */}
       {toast && (

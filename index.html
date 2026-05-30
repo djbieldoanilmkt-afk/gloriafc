@@ -356,7 +356,7 @@ window.GFC.relativeTime = function (ts) {
 
   </script>
 
-  <!-- componentes, seções e app (inline Babel) -->
+  <!-- componentes, secoes e app (inline Babel) -->
   <script type="text/babel">
 
 /* BEGIN USAGE */
@@ -1217,8 +1217,115 @@ function ConfettiBurst({ triggerKey }) {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   OnboardingModal — popup de entrada: nome, email e país.
+   Salva em localStorage. Fecha e repassa dados ao app.
+   ------------------------------------------------------------------------ */
+function OnboardingModal({ countries, onComplete }) {
+  const sorted = [
+    ...countries.filter((c) => c.iso2 === "AR"),
+    ...countries.filter((c) => ["BR","MX","CO","UY","CL","PE","ES","PT"].includes(c.iso2)),
+    ...countries.filter((c) => !["AR","BR","MX","CO","UY","CL","PE","ES","PT"].includes(c.iso2)),
+  ];
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [iso2, setIso2] = useState("AR");
+  const [error, setError] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) { setError("Ingresá tu nombre."); return; }
+    if (!email.includes("@")) { setError("Email inválido."); return; }
+    try { localStorage.setItem("gfc_user", JSON.stringify({ name: name.trim(), email, iso2 })); } catch(_) {}
+    onComplete({ name: name.trim(), email, iso2 });
+  };
+
+  const country = sorted.find((c) => c.iso2 === iso2) || sorted[0];
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
+         style={{background:"rgba(0,0,0,0.85)", backdropFilter:"blur(12px)"}}>
+      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 gfc-enter gfc-enter-1"
+           style={{background:"linear-gradient(160deg,#0a1a12,#071009)", boxShadow:"0 0 60px rgba(16,185,129,0.25), 0 0 0 1px rgba(16,185,129,0.35)"}}>
+
+        {/* Logo + headline */}
+        <div className="text-center mb-6">
+          <div className="font-display text-2xl font-extrabold text-white">
+            Gloria<span style={{color:"var(--green)"}}>FC</span>
+          </div>
+          <h2 className="mt-2 font-display text-[28px] font-extrabold leading-tight text-white">
+            ¿Por quién vas<br/>a alentar?
+          </h2>
+          <p className="mt-2 text-sm" style={{color:"rgba(255,255,255,0.45)"}}>
+            Unite al ranking mundial de hinchada 2026.
+          </p>
+        </div>
+
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          {/* País */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu selección
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xl leading-none">{country.flag_emoji}</div>
+              <select value={iso2} onChange={(e) => setIso2(e.target.value)}
+                className="w-full appearance-none rounded-2xl pl-10 pr-8 py-3.5 text-sm font-semibold text-white outline-none cursor-pointer"
+                style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(16,185,129,0.35)"}}>
+                {sorted.map((c) => (
+                  <option key={c.iso2} value={c.iso2} className="bg-[#0d1411]">
+                    {c.flag_emoji} {c.name}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{color:"rgba(255,255,255,0.4)"}} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.41a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Nome */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu nombre
+            </label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+              placeholder="Ej.: Diego Armando" maxLength={32} autoComplete="name"
+              className="w-full rounded-2xl px-4 py-3.5 text-sm text-white outline-none"
+              style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)"}} />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5 gfc-kicker" style={{color:"var(--green-bright)"}}>
+              Tu email
+            </label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="diego@ejemplo.com" autoComplete="email"
+              className="w-full rounded-2xl px-4 py-3.5 text-sm text-white outline-none"
+              style={{background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)"}} />
+          </div>
+
+          {error && <p className="text-xs text-red-400 -mt-1">{error}</p>}
+
+          <button type="submit"
+            className="gfc-cta-pulse mt-1 w-full rounded-2xl py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{background:"var(--green)"}}>
+            {country.flag_emoji} ¡Entrar al ranking!
+          </button>
+
+          <p className="text-center text-[11px]" style={{color:"rgba(255,255,255,0.28)"}}>
+            Tu email es privado. Solo tu nombre aparece en el feed.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 Object.assign(window, {
-  LiveCounter, CountryBadge, LeaderboardRow, PackageCard, LogItem, CurrencySelector, ConfettiBurst,
+  LiveCounter, CountryBadge, LeaderboardRow, PackageCard, LogItem, CurrencySelector, ConfettiBurst, OnboardingModal,
 });
 
 /* ============================================================================
@@ -1421,13 +1528,66 @@ function LiveRanking({ countries, userIso2, changedId, motion, bare }) {
 /* ---------------------------------------------------------------------------
    SupportSection — pacotes com preço em moeda local + nome no mural.
    ------------------------------------------------------------------------ */
-function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry }) {
+function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry, rivalGap, brazilPoints }) {
   const currency = window.GFC.currencyForCountry(currencyCountry);
   const [sectionRef, revealClass] = useScrollReveal();
+
+  /* contador de apoiadores hoje — sobe lentamente para criar prova social */
+  const [todayCount, setTodayCount] = useState(1247 + Math.floor((Date.now() / 1000) % 300));
+  useEffect(() => {
+    const t = setInterval(() => setTodayCount((n) => n + Math.floor(Math.random() * 2 + 1)), 6000);
+    return () => clearInterval(t);
+  }, []);
+
+  const gapPositive = rivalGap !== null && rivalGap > 0;
+  const pct = brazilPoints > 0 && userCountry
+    ? Math.min(99, Math.floor((userCountry.total_points / brazilPoints) * 100))
+    : null;
 
   return (
     <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 py-10 sm:py-14 " + revealClass}>
       <div className="mx-auto max-w-3xl">
+
+        {/* === Barra de urgência === */}
+        {gapPositive && (
+          <div className="mb-7 rounded-2xl p-4 sm:p-5 gfc-box-neon"
+               style={{background:"linear-gradient(135deg,rgba(16,185,129,0.10),rgba(16,185,129,0.04))", border:"1px solid rgba(16,185,129,0.30)"}}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <div className="font-display text-lg sm:text-xl font-extrabold text-white leading-tight">
+                    {userCountry.flag_emoji} a <span style={{color:"var(--gold)"}}>{rivalGap.toLocaleString("es-AR")}</span> Glorias de 🇧🇷 Brasil
+                  </div>
+                  <div className="text-[12px] mt-0.5" style={{color:"rgba(255,255,255,0.45)"}}>
+                    Cada Gloria te acerca a la cima · Copa 2026
+                  </div>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-display text-2xl font-extrabold" style={{color:"var(--green-bright)"}}>{todayCount.toLocaleString("es-AR")}</div>
+                <div className="text-[10px] uppercase tracking-widest" style={{color:"rgba(255,255,255,0.40)"}}>apoyan hoy</div>
+              </div>
+            </div>
+            {pct !== null && (
+              <div className="mt-4">
+                <div className="flex justify-between text-[11px] mb-1.5" style={{color:"rgba(255,255,255,0.45)"}}>
+                  <span>{userCountry.flag_emoji} {userCountry.name}</span>
+                  <span style={{color:"var(--green-bright)"}}>{pct}% de Brasil</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.08)"}}>
+                  <div className="h-full rounded-full transition-all duration-1000"
+                       style={{width: pct + "%", background:"linear-gradient(90deg,var(--green),var(--green-bright))", boxShadow:"0 0 10px var(--green)"}}>
+                  </div>
+                </div>
+                <div className="mt-1.5 text-right text-[11px]" style={{color:"rgba(255,255,255,0.35)"}}>
+                  🇧🇷 Brasil 100%
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             kicker="Apoyar"
@@ -1463,7 +1623,7 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
             className="mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
           />
           <p className="mt-2 text-[11px] leading-relaxed text-white/35">
-            ⚠️ Al completar, tu nombre aparece públicamente en el feed "Últimas Glorias". Dejalo vacío para apoyar como Anónimo.
+            ⚠️ Al completar, tu nombre aparece publicamente en el feed "Ultimas Glorias". Dejalo vacio para apoyar como Anonimo.
           </p>
         </div>
       </div>
@@ -1580,7 +1740,26 @@ function App() {
   const [toast, setToast] = useState(null);
   const [confettiKey, setConfettiKey] = useState(0);
 
-  const userIso2 = window.GFC.detectedCountry;
+  /* ----- onboarding modal -------------------------------------------- */
+  const [showModal, setShowModal] = useState(() => {
+    try { return !localStorage.getItem("gfc_user"); } catch(_) { return true; }
+  });
+
+  const handleModalComplete = ({ name, iso2 }) => {
+    setDisplayName(name);
+    setCurrencyCountry(iso2);
+    setUserIso2Override(iso2);
+    setShowModal(false);
+  };
+
+  const [userIso2Override, setUserIso2Override] = useState(() => {
+    try {
+      const saved = localStorage.getItem("gfc_user");
+      return saved ? JSON.parse(saved).iso2 : null;
+    } catch(_) { return null; }
+  });
+
+  const userIso2 = userIso2Override || window.GFC.detectedCountry;
   const userCountry = countries.find((c) => c.iso2 === userIso2);
   const sortedForRank = [...countries].sort((a, b) => b.total_points - a.total_points);
   const userRank = sortedForRank.findIndex((c) => c.iso2 === userIso2) + 1;
@@ -1673,6 +1852,21 @@ function App() {
         onCTA={scrollToApoiar}
       />
 
+      {/* Pacotes PRIMEIRO — máxima visibilidade */}
+      <SupportSection
+        packages={window.GFC.point_packages}
+        countries={countries}
+        currencyCountry={currencyCountry}
+        onCurrencyChange={setCurrencyCountry}
+        displayName={displayName}
+        onNameChange={setDisplayName}
+        onSupport={onSupport}
+        busyId={busyId}
+        userCountry={userCountry}
+        rivalGap={rivalGap}
+        brazilPoints={brazilCountry ? brazilCountry.total_points : 0}
+      />
+
       {/* Ranking + Feed lado a lado */}
       <section className="px-5 py-10 sm:py-14">
         <div className="mx-auto max-w-5xl">
@@ -1684,18 +1878,6 @@ function App() {
           </div>
         </div>
       </section>
-
-      <SupportSection
-        packages={window.GFC.point_packages}
-        countries={countries}
-        currencyCountry={currencyCountry}
-        onCurrencyChange={setCurrencyCountry}
-        displayName={displayName}
-        onNameChange={setDisplayName}
-        onSupport={onSupport}
-        busyId={busyId}
-        userCountry={userCountry}
-      />
 
       <SiteFooter />
 
@@ -1711,6 +1893,14 @@ function App() {
 
       {/* confetti ao apoiar */}
       <ConfettiBurst triggerKey={confettiKey} />
+
+      {/* modal de onboarding */}
+      {showModal && (
+        <OnboardingModal
+          countries={window.GFC.countries}
+          onComplete={handleModalComplete}
+        />
+      )}
 
       {/* toast de confirmação */}
       {toast && (
