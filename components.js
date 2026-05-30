@@ -152,30 +152,75 @@ const LeaderboardRow = React.forwardRef(function LeaderboardRow(
    ------------------------------------------------------------------------ */
 function PackageCard({ pkg, currency, onSupport, busy }) {
   const popular = pkg.popular;
+  const bonus = pkg.bonus || 0;
+  const bonusPoints = Math.round(pkg.points * bonus);
+  const totalPoints = pkg.points + bonusPoints;
+  const hasBonus = bonus > 0;
   const price = window.GFC.formatPrice(pkg.prices[currency] ?? pkg.prices.USD, pkg.prices[currency] ? currency : "USD");
+  const isBest = pkg.id === "pkg_1000";
 
   return (
     <div
       className={
         "relative flex flex-col rounded-3xl p-5 sm:p-6 transition-all duration-200 gfc-card-hover " +
-        (popular
-          ? "bg-gradient-to-b from-[var(--green)]/18 to-[var(--bg-2)] ring-2 ring-[var(--green)]/60 shadow-[0_20px_60px_-20px_var(--green)]"
-          : "bg-white/[0.03] ring-1 ring-white/8 hover:ring-white/15")
+        (isBest
+          ? "ring-2 ring-[var(--gold)]/70"
+          : popular
+            ? "ring-2 ring-[var(--green)]/60"
+            : "bg-white/[0.03] ring-1 ring-white/8 hover:ring-white/15")
       }
+      style={isBest
+        ? {background: "linear-gradient(160deg,rgba(251,191,36,0.12),rgba(16,185,129,0.08),rgba(7,11,10,1))", boxShadow: "0 0 40px rgba(251,191,36,0.15), 0 20px 60px -20px rgba(251,191,36,0.2)"}
+        : popular
+          ? {background: "linear-gradient(160deg,rgba(16,185,129,0.15),rgba(13,20,17,1))", boxShadow: "0 20px 60px -20px rgba(16,185,129,0.3)"}
+          : {}}
     >
-      {popular && (
+      {/* Badge superior */}
+      {isBest && (
+        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg gfc-neon-gold"
+              style={{background: "var(--gold)"}}>
+          ⭐ +{Math.round(bonus * 100)}% BONUS
+        </span>
+      )}
+      {popular && !isBest && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--green)] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg">
-          Más popular
+          Mas popular
         </span>
       )}
 
       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">{pkg.name}</div>
 
+      {/* Pontos com bonus */}
       <div className="mt-2">
-        <span className="font-display text-5xl sm:text-6xl font-extrabold leading-none text-white">
-          {pkg.points.toLocaleString("pt-BR")}
-        </span>
-        <div className="mt-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--green-bright)]">Glorias</div>
+        {hasBonus ? (
+          <>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-extrabold leading-none"
+                    style={{fontSize: isBest ? "3rem" : "2.5rem", color: isBest ? "var(--gold)" : "var(--green-bright)"}}>
+                {totalPoints.toLocaleString("es-AR")}
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wide text-white/40 line-through">
+                {pkg.points.toLocaleString("es-AR")}
+              </span>
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-[0.18em]"
+                    style={{color: isBest ? "var(--gold)" : "var(--green-bright)"}}>Glorias</span>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase"
+                    style={{background: isBest ? "rgba(251,191,36,0.15)" : "rgba(16,185,129,0.15)",
+                            color: isBest ? "var(--gold)" : "var(--green-bright)"}}>
+                +{bonusPoints.toLocaleString("es-AR")} gratis!
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="font-display text-5xl sm:text-6xl font-extrabold leading-none text-white">
+              {pkg.points.toLocaleString("es-AR")}
+            </span>
+            <div className="mt-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--green-bright)]">Glorias</div>
+          </>
+        )}
       </div>
 
       <div className="mt-4 flex items-baseline gap-2">
@@ -190,12 +235,15 @@ function PackageCard({ pkg, currency, onSupport, busy }) {
         disabled={busy}
         className={
           "mt-5 w-full rounded-2xl py-3.5 text-sm font-extrabold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-50 " +
-          (popular
-            ? "bg-[var(--green)] text-[#04130c] hover:bg-[var(--green-bright)] shadow-lg shadow-[var(--green)]/30"
-            : "bg-white/10 text-white hover:bg-white/16 ring-1 ring-white/10")
+          (isBest
+            ? "text-[#04130c] hover:brightness-110"
+            : popular
+              ? "bg-[var(--green)] text-[#04130c] hover:bg-[var(--green-bright)] shadow-lg shadow-[var(--green)]/30"
+              : "bg-white/10 text-white hover:bg-white/16 ring-1 ring-white/10")
         }
+        style={isBest ? {background: "var(--gold)", boxShadow: "0 0 20px rgba(251,191,36,0.4)"} : {}}
       >
-        {busy ? "Enviando…" : "Apoyar"}
+        {busy ? "Enviando..." : isBest ? "Apoyar y ganar bonus" : "Apoyar"}
       </button>
     </div>
   );
@@ -206,11 +254,49 @@ function PackageCard({ pkg, currency, onSupport, busy }) {
    ------------------------------------------------------------------------ */
 function LogItem({ item, fresh, motion }) {
   const [, force] = useState(0);
-  // re-render periódico p/ atualizar o tempo relativo
   useEffect(() => {
     const i = setInterval(() => force((n) => n + 1), 15000);
     return () => clearInterval(i);
   }, []);
+
+  /* entrada especial do proprio usuario */
+  if (item._isUser) {
+    return (
+      <div className={"relative rounded-2xl px-4 py-3.5 " + (fresh && motion !== "off" ? "gfc-log-neon-flash" : "gfc-box-neon-strong")}
+           style={{background: "linear-gradient(135deg,rgba(16,185,129,0.18),rgba(16,185,129,0.06))",
+                   border: "2px solid rgba(16,185,129,0.65)"}}>
+        {/* Badge Seu apoyo */}
+        <div className="absolute -top-3 left-4">
+          <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#04130c]"
+                style={{background: "var(--green)", boxShadow: "0 0 12px rgba(16,185,129,0.7)"}}>
+            Teu apoyo! 🏆
+          </span>
+        </div>
+        <div className="mt-1 flex items-center gap-3">
+          <span className="text-3xl leading-none shrink-0 gfc-neon-green">{item.flag_emoji}</span>
+          <div className="min-w-0 flex-1">
+            <div className="font-display font-extrabold text-base leading-tight" style={{color: "var(--green-bright)"}}>
+              {item.display_name || "Vos"}
+            </div>
+            <div className="text-[11px] mt-0.5" style={{color: "rgba(255,255,255,0.45)"}}>
+              {item.country} · {window.GFC.relativeTime(item.created_at)}
+            </div>
+            {item.bonusPoints > 0 && (
+              <div className="mt-1 text-[11px] font-bold" style={{color: "var(--gold)"}}>
+                +{item.bonusPoints.toLocaleString("es-AR")} bonus incluido!
+              </div>
+            )}
+          </div>
+          <div className="shrink-0 text-right">
+            <div className="font-display font-extrabold text-2xl leading-none gfc-text-neon" style={{color: "var(--green-bright)"}}>
+              +{item.points.toLocaleString("es-AR")}
+            </div>
+            <div className="text-[10px] uppercase tracking-widest mt-0.5" style={{color: "rgba(255,255,255,0.4)"}}>Glorias</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -222,13 +308,13 @@ function LogItem({ item, fresh, motion }) {
       <span className="text-2xl leading-none shrink-0">{item.flag_emoji}</span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] text-white/90">
-          <span className="font-semibold">{item.display_name || "Anónimo"}</span>
+          <span className="font-semibold">{item.display_name || "Anonimo"}</span>
           <span className="text-white/45"> · {item.country}</span>
         </div>
         <div className="text-[11px] text-white/35">{window.GFC.relativeTime(item.created_at)}</div>
       </div>
       <div className="shrink-0 font-display font-extrabold text-[var(--green-bright)] text-sm">
-        +{item.points.toLocaleString("pt-BR")}
+        +{item.points.toLocaleString("es-AR")}
       </div>
     </div>
   );

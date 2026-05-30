@@ -97,14 +97,42 @@ function App() {
   /* ----- handler de apoio (placeholder — checkout Stripe entra depois) - */
   const onSupport = (packageId, countryId, currency, name) => {
     const pkg = window.GFC.point_packages.find((p) => p.id === packageId);
-    console.log("[GlóriaFC] onSupport →", { packageId, countryId, currency, displayName: name });
+    const bonus = pkg.bonus || 0;
+    const bonusPoints = Math.round(pkg.points * bonus);
+    const totalPoints = pkg.points + bonusPoints;
     setBusyId(packageId);
     setTimeout(() => {
-      applyGlory(countryId, pkg.points, name);
+      /* aplica os pontos totais (base + bonus) */
+      const country = window.GFC.countries.find((c) => c.id === countryId);
+      setCountries((prev) =>
+        prev.map((c) => (c.id === countryId ? { ...c, total_points: c.total_points + totalPoints } : c))
+      );
+      setChangedId(countryId);
+      setTimeout(() => setChangedId(null), 1100);
+      setGlobalToday((g) => g + totalPoints);
+
+      /* entrada especial no feed com flag _isUser */
+      const id = ++_logId;
+      setLog((prev) =>
+        [{
+          _id: id,
+          country: country.name,
+          flag_emoji: country.flag_emoji,
+          points: totalPoints,
+          bonusPoints: bonusPoints,
+          display_name: name || displayName || null,
+          created_at: Date.now(),
+          _isUser: true,
+        }, ...prev].slice(0, 10)
+      );
+      setFreshId(id);
+      setTimeout(() => setFreshId(null), 1000);
+
       setBusyId(null);
       setConfettiKey((k) => k + 1);
-      setToast(`+${pkg.points.toLocaleString("es-AR")} Glorias para ${userCountry.flag_emoji} ${userCountry.name}!`);
-      setTimeout(() => setToast(null), 2600);
+      const bonusMsg = bonusPoints > 0 ? ` (+${bonusPoints.toLocaleString("es-AR")} bonus!)` : "";
+      setToast(`+${totalPoints.toLocaleString("es-AR")} Glorias${bonusMsg} para ${userCountry.flag_emoji} ${userCountry.name}!`);
+      setTimeout(() => setToast(null), 3200);
     }, 650);
   };
 

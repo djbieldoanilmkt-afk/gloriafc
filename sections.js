@@ -214,6 +214,10 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
     ? Math.min(99, Math.floor((userCountry.total_points / brazilPoints) * 100))
     : null;
 
+  /* best bonus package info */
+  const bestPkg = packages.find((p) => p.id === "pkg_1000");
+  const bestBonus = bestPkg ? Math.round(bestPkg.points * (bestPkg.bonus || 0)) : 0;
+
   return (
     <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 py-10 sm:py-14 " + revealClass}>
       <div className="mx-auto max-w-3xl">
@@ -255,6 +259,28 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Banner promocional */}
+        {bestBonus > 0 && (
+          <div className="mb-6 rounded-2xl overflow-hidden"
+               style={{background: "linear-gradient(135deg,rgba(251,191,36,0.12),rgba(16,185,129,0.08))", border: "1px solid rgba(251,191,36,0.35)"}}>
+            <div className="px-5 py-4 flex items-center gap-4">
+              <div className="text-3xl">🎁</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-display text-base sm:text-lg font-extrabold leading-tight"
+                     style={{color: "var(--gold)"}}>
+                  Oferta Copa 2026: Estadio Lleno
+                </div>
+                <div className="text-[13px] mt-0.5" style={{color: "rgba(255,255,255,0.55)"}}>
+                  Lleva 1.000 Glorias y gana <strong style={{color:"var(--gold)"}}>+{bestBonus.toLocaleString("es-AR")} GRATIS</strong> = 1.500 totales
+                </div>
+              </div>
+              <div className="shrink-0 font-display font-extrabold text-xl" style={{color: "var(--gold)"}}>
+                +50%
+              </div>
+            </div>
           </div>
         )}
 

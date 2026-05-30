@@ -35,15 +35,15 @@ window.GFC = {
      Precio FIJO por moneda (nunca conversión por tipo de cambio).        */
   point_packages: [
     {
-      id: "pkg_100", name: "Hincha", points: 100, popular: false,
+      id: "pkg_100", name: "Hincha", points: 100, bonus: 0, popular: false,
       prices: { BRL: 1990, USD: 99, MXN: 1990, ARS: 149000, CLP: 99000, COP: 420000, PEN: 390, EUR: 99 },
     },
     {
-      id: "pkg_500", name: "Tribuna", points: 500, popular: true,
+      id: "pkg_500", name: "Tribuna", points: 500, bonus: 0.10, popular: true,
       prices: { BRL: 4990, USD: 299, MXN: 5990, ARS: 399000, CLP: 290000, COP: 1190000, PEN: 1190, EUR: 299 },
     },
     {
-      id: "pkg_1000", name: "Estadio Lleno", points: 1000, popular: false,
+      id: "pkg_1000", name: "Estadio Lleno", points: 1000, bonus: 0.50, popular: false,
       prices: { BRL: 8990, USD: 499, MXN: 9990, ARS: 699000, CLP: 490000, COP: 1990000, PEN: 1990, EUR: 499 },
     },
   ],
