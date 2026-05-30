@@ -170,6 +170,41 @@ function App() {
 
   return (
     <div className="min-h-screen">
+
+      {/* ===== HEADER / LOGO ===== */}
+      <nav className="sticky top-0 z-50 px-5 py-3 flex items-center backdrop-blur-md border-b"
+           style={{background: "rgba(7,11,10,0.88)", borderColor: "rgba(16,185,129,0.15)"}}>
+        <div className="mx-auto max-w-5xl w-full flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center gfc-box-neon"
+                 style={{background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.4)"}}>
+              <span className="font-display text-sm font-extrabold" style={{color: "var(--green)"}}>G</span>
+            </div>
+            <span className="font-display text-xl font-extrabold tracking-tight text-white">
+              Gloria<span style={{color: "var(--green)", textShadow: "0 0 12px rgba(16,185,129,0.8)"}}>FC</span>
+            </span>
+          </div>
+
+          {/* Live badge + CTA desktop */}
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest"
+                 style={{color: "var(--green-bright)"}}>
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full gfc-live-core" style={{background: "var(--green)"}} />
+              </span>
+              En vivo
+            </div>
+            <button onClick={scrollToApoiar}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl px-4 py-2 font-display text-sm font-extrabold uppercase tracking-wider text-[#04130c] transition-all hover:brightness-110 active:scale-[0.97]"
+              style={{background: "var(--green)", boxShadow: "0 0 16px rgba(16,185,129,0.45)"}}>
+              Dar Glorias
+            </button>
+          </div>
+        </div>
+      </nav>
+
       <HeroScoreboard
         userCountry={userCountry}
         userRank={userRank}

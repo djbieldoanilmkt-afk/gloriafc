@@ -27,7 +27,7 @@ function useScrollReveal() {
    ------------------------------------------------------------------------ */
 function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA }) {
   return (
-    <header className="relative overflow-hidden px-5 pt-12 pb-9 sm:pt-16 sm:pb-12">
+    <header className="relative overflow-hidden px-5 pt-4 pb-4 sm:pt-6 sm:pb-6">
       {/* holofotes / brilho de estádio */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[-30%] h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-[var(--green)]/22 blur-[110px]" />
@@ -35,23 +35,15 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
       </div>
 
       <div className="mx-auto max-w-3xl">
-        <div className="gfc-enter gfc-enter-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)]">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--green)] gfc-live-core" />
-          </span>
-          Marcador mundial en vivo · rumbo a 2026
-        </div>
-
-        <h1 className="gfc-enter gfc-enter-2 gfc-glitch mt-4 font-display text-[40px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
+        <h1 className="gfc-enter gfc-enter-1 gfc-glitch mt-1 font-display text-[38px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
           ¿Cuánto vale<br />tu hinchada?
         </h1>
-        <p className="gfc-enter gfc-enter-3 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
+        <p className="gfc-enter gfc-enter-2 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
           Dale Glorias a tu selección y hacela subir en el ranking mundial de hinchada. Apoyo simbólico — sin premio, sin apuesta.
         </p>
 
         {/* card da seleção detectada */}
-        <div className="gfc-enter gfc-enter-4 gfc-scanline mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-[var(--green)]/20 p-5 sm:p-7 backdrop-blur gfc-box-neon">
+        <div className="gfc-enter gfc-enter-3 gfc-scanline mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-[var(--green)]/20 p-5 sm:p-7 backdrop-blur gfc-box-neon">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="text-6xl sm:text-7xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
@@ -107,7 +99,7 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
         </div>
 
         {/* contador global secundário */}
-        <div className="gfc-enter gfc-enter-5 mt-5 flex items-center gap-2 text-sm text-white/55">
+        <div className="gfc-enter gfc-enter-4 mt-5 flex items-center gap-2 text-sm text-white/55">
           <span className="text-base">🌎</span>
           <LiveCounter value={globalToday} duration={600} className="font-display font-extrabold text-white" />
           <span>Glorias dadas hoy en el mundo</span>
@@ -116,7 +108,7 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
         {/* CTA primário */}
         <button
           onClick={onCTA}
-          className="gfc-enter gfc-enter-6 gfc-cta-pulse mt-7 hidden sm:inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green)] px-8 py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-xl shadow-[var(--green)]/30 transition-all hover:bg-[var(--green-bright)] active:scale-[0.98]"
+          className="gfc-enter gfc-enter-5 gfc-cta-pulse mt-7 hidden sm:inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green)] px-8 py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-xl shadow-[var(--green)]/30 transition-all hover:bg-[var(--green-bright)] active:scale-[0.98]"
         >
           Dar Glorias
         </button>
@@ -219,7 +211,7 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
   const bestBonus = bestPkg ? Math.round(bestPkg.points * (bestPkg.bonus || 0)) : 0;
 
   return (
-    <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 py-10 sm:py-14 " + revealClass}>
+    <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 pt-4 pb-10 sm:pb-14 " + revealClass}>
       <div className="mx-auto max-w-3xl">
 
         {/* === Barra de urgência === */}
@@ -305,23 +297,6 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
           ))}
         </div>
 
-        {/* nome no mural (opt-in) */}
-        <div className="mt-6 rounded-2xl bg-white/[0.03] ring-1 ring-white/8 p-4 sm:p-5">
-          <label className="block text-[11px] font-semibold uppercase tracking-widest text-white/45">
-            Tu nombre en el mural <span className="text-white/30">(opcional)</span>
-          </label>
-          <input
-            type="text"
-            value={displayName}
-            onChange={(e) => onNameChange(e.target.value)}
-            maxLength={24}
-            placeholder="Ej.: Messi del barrio"
-            className="mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
-          />
-          <p className="mt-2 text-[11px] leading-relaxed text-white/35">
-            ⚠️ Al completar, tu nombre aparece publicamente en el feed "Ultimas Glorias". Dejalo vacio para apoyar como Anonimo.
-          </p>
-        </div>
       </div>
     </section>
   );
