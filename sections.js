@@ -36,14 +36,14 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
 
       <div className="mx-auto max-w-3xl">
         <div className="gfc-enter gfc-enter-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)]">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--green)]" />
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--green)] gfc-live-core" />
           </span>
           Marcador mundial en vivo · rumbo a 2026
         </div>
 
-        <h1 className="gfc-enter gfc-enter-2 mt-4 font-display text-[40px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
+        <h1 className="gfc-enter gfc-enter-2 gfc-glitch mt-4 font-display text-[40px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
           ¿Cuánto vale<br />tu hinchada?
         </h1>
         <p className="gfc-enter gfc-enter-3 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
@@ -51,7 +51,7 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
         </p>
 
         {/* card da seleção detectada */}
-        <div className="gfc-enter gfc-enter-4 mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-white/8 p-5 sm:p-7 backdrop-blur">
+        <div className="gfc-enter gfc-enter-4 gfc-scanline mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-[var(--green)]/20 p-5 sm:p-7 backdrop-blur gfc-box-neon">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="text-6xl sm:text-7xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
@@ -129,16 +129,14 @@ function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA })
    LiveRanking — ranking global ordenado. User fixo (sticky) no topo.
    FLIP para reordenar suavemente quando totais mudam.
    ------------------------------------------------------------------------ */
-function LiveRanking({ countries, userIso2, changedId, motion }) {
+function LiveRanking({ countries, userIso2, changedId, motion, bare }) {
   const sorted = [...countries].sort((a, b) => b.total_points - a.total_points);
   const rankOf = {};
   sorted.forEach((c, i) => (rankOf[c.id] = i + 1));
 
   const userCountry = sorted.find((c) => c.iso2 === userIso2);
-  // só fixa o usuário no topo quando ele NÃO está já visível entre os primeiros
   const showSticky = userCountry && rankOf[userCountry.id] > 4;
 
-  // ---- FLIP -------------------------------------------------------------
   const rowRefs = useRef({});
   const prevRects = useRef({});
   useLayoutEffect(() => {
@@ -165,42 +163,36 @@ function LiveRanking({ countries, userIso2, changedId, motion }) {
     prevRects.current = newRects;
   });
 
-  return (
-    <section className="px-5 py-10 sm:py-14">
-      <div className="mx-auto max-w-3xl">
-        <SectionHeading kicker="Ranking en vivo" title="¿Quién está alentando más?" />
+  const inner = (
+    <div className={bare ? "" : "mx-auto max-w-3xl"}>
+      <SectionHeading kicker="Ranking en vivo" title="¿Quién está alentando más?" />
 
-        {/* user sticky */}
-        {showSticky && (
-          <div className="sticky top-3 z-20 mb-3">
-            <div className="rounded-2xl bg-[#0a120e]/85 p-1 backdrop-blur-md ring-1 ring-[var(--green)]/30 shadow-2xl">
-              <LeaderboardRow
-                rank={rankOf[userCountry.id]}
-                country={userCountry}
-                isUser={true}
-                justChanged={changedId === userCountry.id}
-                motion={motion}
-              />
-            </div>
+      {showSticky && (
+        <div className="sticky top-3 z-20 mb-3 mt-4">
+          <div className="rounded-2xl bg-[#0a120e]/90 p-1 backdrop-blur-md ring-1 ring-[var(--green)]/40 gfc-box-neon">
+            <LeaderboardRow rank={rankOf[userCountry.id]} country={userCountry} isUser={true} justChanged={changedId === userCountry.id} motion={motion} />
           </div>
-        )}
-
-        <div className="flex flex-col gap-2">
-          {sorted.map((c) => (
-            <LeaderboardRow
-              key={c.id}
-              ref={(el) => (rowRefs.current[c.id] = el)}
-              rank={rankOf[c.id]}
-              country={c}
-              isUser={c.iso2 === userIso2}
-              justChanged={changedId === c.id}
-              motion={motion}
-            />
-          ))}
         </div>
+      )}
+
+      <div className="mt-4 flex flex-col gap-2">
+        {sorted.map((c) => (
+          <LeaderboardRow
+            key={c.id}
+            ref={(el) => (rowRefs.current[c.id] = el)}
+            rank={rankOf[c.id]}
+            country={c}
+            isUser={c.iso2 === userIso2}
+            justChanged={changedId === c.id}
+            motion={motion}
+          />
+        ))}
       </div>
-    </section>
+    </div>
   );
+
+  if (bare) return inner;
+  return <section className="px-5 py-10 sm:py-14">{inner}</section>;
 }
 
 /* ---------------------------------------------------------------------------
@@ -259,18 +251,24 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
 /* ---------------------------------------------------------------------------
    LiveFeed — feed das compras recentes.
    ------------------------------------------------------------------------ */
-function LiveFeed({ log, freshId, motion }) {
+function LiveFeed({ log, freshId, motion, bare }) {
   const [sectionRef, revealClass] = useScrollReveal();
+
+  const inner = (
+    <div className={bare ? "" : "mx-auto max-w-3xl"}>
+      <SectionHeading kicker="Últimas Glorias" title="Pasando ahora" />
+      <div className="mt-6 flex flex-col gap-2">
+        {log.map((item) => (
+          <LogItem key={item._id} item={item} fresh={item._id === freshId} motion={motion} />
+        ))}
+      </div>
+    </div>
+  );
+
+  if (bare) return <div ref={sectionRef} className={revealClass}>{inner}</div>;
   return (
     <section ref={sectionRef} className={"px-5 py-10 sm:py-14 " + revealClass}>
-      <div className="mx-auto max-w-3xl">
-        <SectionHeading kicker="Últimas Glorias" title="Pasando ahora" />
-        <div className="mt-6 flex flex-col gap-2">
-          {log.map((item) => (
-            <LogItem key={item._id} item={item} fresh={item._id === freshId} motion={motion} />
-          ))}
-        </div>
-      </div>
+      {inner}
     </section>
   );
 }
@@ -305,8 +303,8 @@ function SiteFooter() {
 function SectionHeading({ kicker, title, sub }) {
   return (
     <div>
-      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)]">
-        <span className="h-px w-6 bg-[var(--green)]/60" />
+      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)] gfc-kicker">
+        <span className="h-px w-8 bg-[var(--green)] gfc-neon-green" />
         {kicker}
       </div>
       <h2 className="mt-2 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{title}</h2>

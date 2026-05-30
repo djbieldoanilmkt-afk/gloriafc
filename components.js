@@ -79,19 +79,24 @@ const LeaderboardRow = React.forwardRef(function LeaderboardRow(
   }, [rank, motion]);
 
   const shimmerClass =
-    rank === 1 ? "gfc-rank-shimmer" :
-    rank === 2 ? "gfc-rank-shimmer-2" :
-                 "gfc-rank-shimmer-3";
+    rank === 1 ? "gfc-rank-shimmer gfc-neon-gold" :
+    rank === 2 ? "gfc-rank-shimmer-2 gfc-neon-silver" :
+                 "gfc-rank-shimmer-3 gfc-neon-bronze";
+
+  const rowGlowClass =
+    rank === 1 ? "gfc-row-gold" :
+    rank === 2 ? "gfc-row-silver" :
+    rank === 3 ? "gfc-row-bronze" : "";
 
   return (
     <div
       ref={ref}
       className={
         "relative flex items-center gap-3 sm:gap-4 rounded-2xl px-3 sm:px-4 py-3 " +
-        "transition-colors duration-300 will-change-transform " +
+        "transition-all duration-300 will-change-transform " +
         (isUser
-          ? "bg-[var(--green)]/12 ring-1 ring-[var(--green)]/45 shadow-[0_0_30px_-12px_var(--green)]"
-          : "bg-white/[0.025] hover:bg-white/[0.05] ring-1 ring-white/5")
+          ? "bg-[var(--green)]/15 ring-1 ring-[var(--green)]/60 gfc-box-neon-strong"
+          : "bg-white/[0.025] hover:bg-white/[0.05] ring-1 ring-white/5 " + rowGlowClass)
       }
     >
       {/* posição */}
@@ -211,7 +216,7 @@ function LogItem({ item, fresh, motion }) {
     <div
       className={
         "flex items-center gap-3 rounded-2xl bg-white/[0.03] ring-1 ring-white/6 px-3.5 py-2.5 " +
-        (fresh && motion !== "off" ? "gfc-slide-in" : "")
+        (fresh && motion !== "off" ? "gfc-log-neon-flash" : "")
       }
     >
       <span className="text-2xl leading-none shrink-0">{item.flag_emoji}</span>
