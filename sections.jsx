@@ -25,7 +25,7 @@ function useScrollReveal() {
 /* ---------------------------------------------------------------------------
    HeroScoreboard — placar ao vivo da seleção do usuário.
    ------------------------------------------------------------------------ */
-function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
+function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA }) {
   return (
     <header className="relative overflow-hidden px-5 pt-12 pb-9 sm:pt-16 sm:pb-12">
       {/* holofotes / brilho de estádio */}
@@ -75,6 +75,34 @@ function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
               />
               <span className="text-sm font-bold uppercase tracking-wide text-[var(--green-bright)]">Glorias</span>
             </div>
+
+            {/* indicador de rivalidade vs Brasil */}
+            {rivalGap !== null && (
+              <div className="mt-3">
+                {rivalGap > 0 ? (
+                  <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] ring-1 ring-white/8 px-3 py-2">
+                    <span className="text-base leading-none">🇧🇷</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">Faltan para superar a Brasil</div>
+                      <div className="font-display text-lg font-extrabold text-[var(--gold)] leading-tight">
+                        {rivalGap.toLocaleString("es-AR")} Glorias
+                      </div>
+                    </div>
+                    <button onClick={onCTA} className="shrink-0 rounded-xl bg-[var(--green)]/20 hover:bg-[var(--green)]/30 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--green-bright)] transition-colors">
+                      ¡Apostar!
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-xl bg-[var(--green)]/10 ring-1 ring-[var(--green)]/30 px-3 py-2 gfc-pop">
+                    <span className="text-xl leading-none">🏆</span>
+                    <div>
+                      <div className="font-display text-base font-extrabold text-[var(--green-bright)] leading-tight">¡Argentina #1 en el mundo!</div>
+                      <div className="text-[11px] text-white/40 mt-0.5">Seguí apoyando para mantener la cima</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

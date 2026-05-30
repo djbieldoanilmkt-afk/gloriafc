@@ -43,6 +43,11 @@ function App() {
   const sortedForRank = [...countries].sort((a, b) => b.total_points - a.total_points);
   const userRank = sortedForRank.findIndex((c) => c.iso2 === userIso2) + 1;
 
+  const brazilCountry = countries.find((c) => c.iso2 === "BR");
+  const rivalGap = brazilCountry && userCountry && userIso2 !== "BR"
+    ? brazilCountry.total_points - userCountry.total_points
+    : null;
+
   /* ----- aplica tweaks (cores + fonte) -------------------------------- */
   useEffect(() => {
     const root = document.documentElement;
@@ -97,6 +102,20 @@ function App() {
     return () => clearInterval(interval);
   }, [t.liveUpdates, t.motion]);
 
+  /* ----- decaimento de pontos — hinchada esfría sin apoyo ------------- */
+  useEffect(() => {
+    if (!t.liveUpdates) return;
+    const decay = setInterval(() => {
+      setCountries((prev) =>
+        prev.map((c) => ({
+          ...c,
+          total_points: Math.max(10000, Math.floor(c.total_points * 0.9992)),
+        }))
+      );
+    }, 60000); // 0,08% a menos por minuto para todos os países
+    return () => clearInterval(decay);
+  }, [t.liveUpdates]);
+
   const scrollToApoiar = () => {
     const el = document.getElementById("apoiar");
     if (el) window.scrollTo({ top: el.offsetTop - 12, behavior: "smooth" });
@@ -108,6 +127,7 @@ function App() {
         userCountry={userCountry}
         userRank={userRank}
         globalToday={globalToday}
+        rivalGap={rivalGap}
         onCTA={scrollToApoiar}
       />
 

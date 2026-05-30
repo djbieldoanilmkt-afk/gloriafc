@@ -13,7 +13,7 @@ window.GFC = {
      [{ id, iso2, name, flag_emoji, total_points }]                       */
   countries: [
     { id: 1,  iso2: "BR", name: "Brasil",         flag_emoji: "🇧🇷", total_points: 1284500 },
-    { id: 2,  iso2: "AR", name: "Argentina",      flag_emoji: "🇦🇷", total_points: 1102300 },
+    { id: 2,  iso2: "AR", name: "Argentina",      flag_emoji: "🇦🇷", total_points: 1274500 },
     { id: 3,  iso2: "FR", name: "Francia",        flag_emoji: "🇫🇷", total_points: 1047800 },
     { id: 4,  iso2: "ES", name: "España",         flag_emoji: "🇪🇸", total_points:  921400 },
     { id: 5,  iso2: "EN", name: "Inglaterra",     flag_emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", total_points:  884200 },
