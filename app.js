@@ -228,17 +228,15 @@ function App() {
         brazilPoints={brazilCountry ? brazilCountry.total_points : 0}
       />
 
-      {/* Ranking + Feed lado a lado */}
-      <section className="px-5 py-10 sm:py-14">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10 items-start">
-            <LiveRanking countries={countries} userIso2={userIso2} changedId={changedId} motion={t.motion} bare />
-            <div className="lg:sticky lg:top-4">
-              <LiveFeed log={log} freshId={freshId} motion={t.motion} bare />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ===== BATTLE BARS ===== */}
+      <BattleSection
+        countries={countries}
+        userIso2={userIso2}
+        changedId={changedId}
+        motion={t.motion}
+        log={log}
+        freshId={freshId}
+      />
 
       <SiteFooter />
 

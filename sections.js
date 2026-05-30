@@ -324,6 +324,282 @@ function LiveFeed({ log, freshId, motion, bare }) {
 }
 
 /* ---------------------------------------------------------------------------
+   BattleSection — Arena de batalha Argentina vs Brasil + feed lateral.
+   ------------------------------------------------------------------------ */
+function BattleSection({ countries, userIso2, changedId, motion, log, freshId }) {
+  const sorted = [...countries].sort((a, b) => b.total_points - a.total_points);
+  const rankOf = {};
+  sorted.forEach((c, i) => (rankOf[c.id] = i + 1));
+
+  const arg = countries.find((c) => c.iso2 === "AR");
+  const bra = countries.find((c) => c.iso2 === "BR");
+  const others = sorted.filter((c) => c.iso2 !== "AR" && c.iso2 !== "BR");
+
+  const maxPts = Math.max(arg ? arg.total_points : 0, bra ? bra.total_points : 1);
+  const argPct = arg ? Math.min(100, (arg.total_points / maxPts) * 100) : 0;
+  const braPct = bra ? Math.min(100, (bra.total_points / maxPts) * 100) : 100;
+  const argLeading = arg && bra && arg.total_points >= bra.total_points;
+  const gap = arg && bra ? Math.abs(bra.total_points - arg.total_points) : 0;
+
+  const argChanged = changedId === arg?.id;
+  const braChanged = changedId === bra?.id;
+
+  const [argBoostKey, setArgBoostKey] = useState(0);
+  const [showKO, setShowKO] = useState(false);
+  const [koKey, setKoKey] = useState(0);
+  const prevLeading = useRef(argLeading);
+
+  useEffect(() => {
+    if (argChanged && motion !== "off") setArgBoostKey((k) => k + 1);
+  }, [changedId]);
+
+  useEffect(() => {
+    if (motion === "off") return;
+    if (!prevLeading.current && argLeading) {
+      setShowKO(true);
+      setKoKey((k) => k + 1);
+      setTimeout(() => setShowKO(false), 2600);
+    }
+    prevLeading.current = argLeading;
+  }, [argLeading]);
+
+  const scrollToApoiar = () => {
+    const el = document.getElementById("apoiar");
+    if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: "smooth" });
+  };
+
+  return (
+    <section className="px-5 py-8 sm:py-12">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
+
+          {/* ===== ARENA ===== */}
+          <div>
+            <SectionHeading kicker="Ranking en vivo" title="La batalla de hinchadas" />
+
+            <div className="mt-5 relative rounded-3xl overflow-hidden gfc-arena"
+                 style={{background:"linear-gradient(175deg,#0d2018 0%,#07110a 100%)",
+                         border:"1px solid rgba(16,185,129,0.25)"}}>
+
+              {/* scanlines decorativas */}
+              <div style={{position:"absolute",inset:0,pointerEvents:"none",zIndex:1,
+                           backgroundImage:"repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(16,185,129,0.018) 3px,rgba(16,185,129,0.018) 4px)"}} />
+
+              {/* ---- Header: bandeiras + VS ---- */}
+              <div className="relative z-10 flex items-center justify-between px-5 pt-6 pb-4 gap-4">
+                {/* Argentina */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="relative shrink-0">
+                    <span className="block text-5xl sm:text-6xl leading-none"
+                          style={argLeading ? {filter:"drop-shadow(0 0 14px rgba(16,185,129,0.9))"} : {}}>
+                      {arg?.flag_emoji}
+                    </span>
+                    {argLeading && (
+                      <span className="absolute -top-2 -right-1 rounded-full text-[#04130c] text-[9px] font-extrabold px-1.5 py-0.5 uppercase"
+                            style={{background:"var(--green)",boxShadow:"0 0 8px rgba(16,185,129,0.8)"}}>
+                        #1
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-display text-lg sm:text-xl font-extrabold text-white truncate">Argentina</div>
+                    <div className="font-display text-xs tabular-nums" style={{color:"var(--green-bright)"}}>
+                      {arg?.total_points.toLocaleString("es-AR")}
+                    </div>
+                  </div>
+                </div>
+
+                {/* VS */}
+                <div className="gfc-vs-text shrink-0 font-display text-2xl sm:text-3xl font-extrabold tracking-widest select-none"
+                     style={{color:"rgba(255,255,255,0.22)"}}>
+                  VS
+                </div>
+
+                {/* Brasil */}
+                <div className="flex items-center gap-3 flex-1 min-w-0 justify-end text-right">
+                  <div className="min-w-0">
+                    <div className="font-display text-lg sm:text-xl font-extrabold text-white truncate">Brasil</div>
+                    <div className="font-display text-xs tabular-nums" style={{color:"var(--gold)"}}>
+                      {bra?.total_points.toLocaleString("es-AR")}
+                    </div>
+                  </div>
+                  <div className="relative shrink-0">
+                    <span className="block text-5xl sm:text-6xl leading-none"
+                          style={!argLeading ? {filter:"drop-shadow(0 0 14px rgba(251,191,36,0.9))"} : {}}>
+                      {bra?.flag_emoji}
+                    </span>
+                    {!argLeading && (
+                      <span className="absolute -top-2 -right-1 rounded-full text-[#04130c] text-[9px] font-extrabold px-1.5 py-0.5 uppercase"
+                            style={{background:"var(--gold)",boxShadow:"0 0 8px rgba(251,191,36,0.8)"}}>
+                        #1
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ---- Barras de energia ---- */}
+              <div className="relative z-10 px-5 pb-5 space-y-4">
+
+                {/* Barra Argentina */}
+                <div>
+                  <div className="flex items-center justify-between text-[11px] mb-2">
+                    <span className="font-bold uppercase tracking-widest gfc-kicker" style={{color:"var(--green-bright)"}}>
+                      Argentina · {Math.round(argPct)}%
+                    </span>
+                    {argLeading && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#04130c]"
+                            style={{background:"var(--green)"}}>LIDERANDO</span>
+                    )}
+                  </div>
+                  <div className="relative h-12 sm:h-14 rounded-2xl overflow-visible"
+                       style={{background:"rgba(255,255,255,0.05)"}}>
+                    {/* barra verde */}
+                    <div
+                      className={argChanged && motion !== "off" ? "gfc-bar-flash" : ""}
+                      style={{
+                        position:"absolute", left:0, top:0, bottom:0,
+                        width: argPct + "%",
+                        minWidth: argPct > 0 ? "48px" : "0px",
+                        borderRadius:"0 16px 16px 0",
+                        background: argLeading
+                          ? "linear-gradient(90deg,#047857,#10b981,#34d399)"
+                          : "linear-gradient(90deg,#065f46,#10b981)",
+                        boxShadow: argLeading
+                          ? "0 0 30px rgba(16,185,129,0.8), inset 0 1px 0 rgba(255,255,255,0.15)"
+                          : "0 0 12px rgba(16,185,129,0.4)",
+                        transition:"width 0.9s cubic-bezier(0.34,1.56,0.64,1)",
+                      }}>
+                      {/* shimmer interno */}
+                      <div style={{position:"absolute",inset:0,borderRadius:"0 16px 16px 0",
+                                   background:"linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%)",
+                                   backgroundSize:"200% 100%",animation:"gfc-shimmer 2s linear infinite"}} />
+                    </div>
+                    {/* boost float */}
+                    {argBoostKey > 0 && (
+                      <span key={argBoostKey}
+                            className="gfc-boost-float absolute right-4 top-1/2 -translate-y-1/2 font-display font-extrabold text-base select-none"
+                            style={{color:"var(--green-bright)",textShadow:"0 0 14px rgba(16,185,129,1)"}}>
+                        ⚡ BOOST!
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Barra Brasil */}
+                <div>
+                  <div className="flex items-center justify-between text-[11px] mb-2">
+                    <span className="text-white/35 font-bold uppercase tracking-widest">Brasil · {Math.round(braPct)}%</span>
+                    {!argLeading && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#04130c]"
+                            style={{background:"var(--gold)"}}>LIDERANDO</span>
+                    )}
+                  </div>
+                  <div className="relative h-12 sm:h-14 rounded-2xl overflow-visible"
+                       style={{background:"rgba(255,255,255,0.05)"}}>
+                    <div
+                      className={braChanged && motion !== "off" ? "gfc-bar-flash-gold" : ""}
+                      style={{
+                        position:"absolute", left:0, top:0, bottom:0,
+                        width: braPct + "%",
+                        borderRadius:"0 16px 16px 0",
+                        background: !argLeading
+                          ? "linear-gradient(90deg,#92400e,#fbbf24,#fde68a)"
+                          : "linear-gradient(90deg,#78350f,#fbbf24)",
+                        boxShadow: !argLeading
+                          ? "0 0 30px rgba(251,191,36,0.8), inset 0 1px 0 rgba(255,255,255,0.15)"
+                          : "0 0 12px rgba(251,191,36,0.35)",
+                        transition:"width 0.9s cubic-bezier(0.34,1.56,0.64,1)",
+                      }}>
+                      <div style={{position:"absolute",inset:0,borderRadius:"0 16px 16px 0",
+                                   background:"linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%)",
+                                   backgroundSize:"200% 100%",animation:"gfc-shimmer 2.5s linear infinite"}} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ---- Status + CTA ---- */}
+              <div className="relative z-10 border-t px-5 py-4 flex items-center justify-between gap-4"
+                   style={{borderColor:"rgba(16,185,129,0.15)",background:"rgba(0,0,0,0.25)"}}>
+                {argLeading ? (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xl shrink-0">🏆</span>
+                    <span className="font-display text-sm font-extrabold truncate" style={{color:"var(--green-bright)"}}>
+                      Argentina lidera por {gap.toLocaleString("es-AR")} Glorias
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base shrink-0">⚡</span>
+                    <span className="font-display text-sm font-extrabold text-white">
+                      Faltan <span style={{color:"var(--gold)"}}>{gap.toLocaleString("es-AR")}</span>{" "}Glorias para liderar
+                    </span>
+                  </div>
+                )}
+                <button onClick={scrollToApoiar}
+                  className="shrink-0 rounded-xl px-4 py-2.5 font-display text-xs font-extrabold uppercase tracking-wider text-[#04130c] transition-all hover:brightness-110 active:scale-[0.97]"
+                  style={{background:"var(--green)",boxShadow:"0 0 16px rgba(16,185,129,0.55)"}}>
+                  Dar Glorias
+                </button>
+              </div>
+
+              {/* KO overlay */}
+              {showKO && (
+                <div key={koKey} className="gfc-ko-pop absolute inset-0 z-20 flex items-center justify-center">
+                  <div className="font-display font-extrabold select-none"
+                       style={{fontSize:"96px",lineHeight:1,color:"var(--green)",
+                               textShadow:"0 0 50px rgba(16,185,129,1),0 0 100px rgba(16,185,129,0.6)"}}>
+                    KO!
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ---- Resto do ranking compacto ---- */}
+            <div className="mt-6">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] mb-3 gfc-kicker"
+                   style={{color:"var(--green-bright)"}}>
+                <span className="h-px w-6 gfc-neon-green" style={{background:"var(--green)",display:"inline-block"}} />
+                Resto del ranking
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {others.map((c) => (
+                  <div key={c.id} ref={c.id === changedId ? undefined : undefined}
+                       className={"flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all " +
+                         (c.iso2 === userIso2
+                           ? "ring-1 gfc-box-neon"
+                           : "bg-white/[0.025] hover:bg-white/[0.04]")}
+                       style={c.iso2 === userIso2
+                         ? {background:"rgba(16,185,129,0.10)",borderColor:"rgba(16,185,129,0.4)"}
+                         : {}}>
+                    <span className="font-display font-extrabold text-sm w-6 text-center shrink-0 text-white/30">
+                      {rankOf[c.id]}
+                    </span>
+                    <span className="text-xl leading-none shrink-0">{c.flag_emoji}</span>
+                    <span className="flex-1 text-sm font-semibold text-white/80 truncate">{c.name}</span>
+                    <span className="font-display text-sm font-extrabold tabular-nums shrink-0"
+                          style={{color: changedId === c.id ? "var(--green-bright)" : "rgba(255,255,255,0.40)"}}>
+                      {c.total_points.toLocaleString("es-AR")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ===== FEED lateral ===== */}
+          <div className="lg:sticky lg:top-20">
+            <LiveFeed log={log} freshId={freshId} motion={motion} bare />
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
    SiteFooter
    ------------------------------------------------------------------------ */
 function SiteFooter() {
@@ -364,5 +640,5 @@ function SectionHeading({ kicker, title, sub }) {
 }
 
 Object.assign(window, {
-  HeroScoreboard, LiveRanking, SupportSection, LiveFeed, SiteFooter, SectionHeading,
+  HeroScoreboard, LiveRanking, SupportSection, LiveFeed, SiteFooter, SectionHeading, BattleSection,
 });
