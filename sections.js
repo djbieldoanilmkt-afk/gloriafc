@@ -335,11 +335,16 @@ function BattleSection({ countries, userIso2, changedId, motion, log, freshId })
   const bra = countries.find((c) => c.iso2 === "BR");
   const others = sorted.filter((c) => c.iso2 !== "AR" && c.iso2 !== "BR");
 
-  const maxPts = Math.max(arg ? arg.total_points : 0, bra ? bra.total_points : 1);
-  const argPct = arg ? Math.min(100, (arg.total_points / maxPts) * 100) : 0;
-  const braPct = bra ? Math.min(100, (bra.total_points / maxPts) * 100) : 100;
   const argLeading = arg && bra && arg.total_points >= bra.total_points;
   const gap = arg && bra ? Math.abs(bra.total_points - arg.total_points) : 0;
+  /* Escala de batalha: converte gap real em diferenca visual sempre legivel.
+     60k glorias = barra do seguidor chega ao minimo (12%).
+     Gap de 9k -> seguidor em 85% (diferenca visivel de 15%). */
+  const BATTLE_SCALE = 60000;
+  const rawGapPct = Math.min(65, (gap / BATTLE_SCALE) * 100);
+  const followerPct = Math.max(12, 100 - rawGapPct);
+  const argPct = argLeading ? 100 : followerPct;
+  const braPct = argLeading ? followerPct : 100;
 
   const argChanged = changedId === arg?.id;
   const braChanged = changedId === bra?.id;
@@ -445,7 +450,7 @@ function BattleSection({ countries, userIso2, changedId, motion, log, freshId })
                 <div>
                   <div className="flex items-center justify-between text-[11px] mb-2">
                     <span className="font-bold uppercase tracking-widest gfc-kicker" style={{color:"var(--green-bright)"}}>
-                      Argentina · {Math.round(argPct)}%
+                      Argentina · {arg ? arg.total_points.toLocaleString("es-AR") : 0}
                     </span>
                     {argLeading && (
                       <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#04130c]"
@@ -489,7 +494,9 @@ function BattleSection({ countries, userIso2, changedId, motion, log, freshId })
                 {/* Barra Brasil */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] mb-2">
-                    <span className="text-white/35 font-bold uppercase tracking-widest">Brasil · {Math.round(braPct)}%</span>
+                    <span className="font-bold uppercase tracking-widest" style={{color:"rgba(251,191,36,0.65)"}}>
+                      Brasil · {bra ? bra.total_points.toLocaleString("es-AR") : 0}
+                    </span>
                     {!argLeading && (
                       <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#04130c]"
                             style={{background:"var(--gold)"}}>LIDERANDO</span>
