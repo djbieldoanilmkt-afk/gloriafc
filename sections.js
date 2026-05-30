@@ -27,92 +27,88 @@ function useScrollReveal() {
    ------------------------------------------------------------------------ */
 function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA }) {
   return (
-    <header className="relative overflow-hidden px-5 pt-4 pb-4 sm:pt-6 sm:pb-6">
+    <header className="relative overflow-hidden px-5 pt-5 pb-5 sm:pt-8 sm:pb-6">
       {/* holofotes / brilho de estádio */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[-30%] h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-[var(--green)]/22 blur-[110px]" />
         <div className="absolute right-[-10%] top-[20%] h-[280px] w-[280px] rounded-full bg-[var(--gold)]/12 blur-[100px]" />
       </div>
 
-      <div className="mx-auto max-w-3xl">
-        <h1 className="gfc-enter gfc-enter-1 gfc-glitch mt-1 font-display text-[38px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
-          ¿Cuánto vale<br />tu hinchada?
-        </h1>
-        <p className="gfc-enter gfc-enter-2 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
-          Dale Glorias a tu selección y hacela subir en el ranking mundial de hinchada. Apoyo simbólico — sin premio, sin apuesta.
-        </p>
+      <div className="mx-auto max-w-5xl">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
 
-        {/* card da seleção detectada */}
-        <div className="gfc-enter gfc-enter-3 gfc-scanline mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-[var(--green)]/20 p-5 sm:p-7 backdrop-blur gfc-box-neon">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <span className="text-6xl sm:text-7xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Tu selección</div>
-                <div className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">{userCountry.name}</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Posición</div>
-              <div className="font-display text-4xl sm:text-5xl font-extrabold leading-none text-[var(--gold)]">#{userRank}</div>
-            </div>
-          </div>
+          {/* Esquerda: título + card */}
+          <div className="flex-1 min-w-0">
+            <h1 className="gfc-glitch font-display text-[36px] leading-[0.95] sm:text-5xl font-extrabold tracking-tight text-white text-balance">
+              ¿Cuánto vale<br />tu hinchada?
+            </h1>
+            <p className="mt-2 max-w-md text-[14px] sm:text-base leading-relaxed text-white/50">
+              Dale Glorias a tu selección y hacela subir en el ranking 2026.
+            </p>
 
-          <div className="mt-6 border-t border-white/8 pt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Total de Glorias</div>
-            <div className="mt-1 flex items-baseline gap-2.5">
-              <LiveCounter
-                value={userCountry.total_points}
-                className="font-display text-[44px] sm:text-7xl font-extrabold leading-none text-white"
-              />
-              <span className="text-sm font-bold uppercase tracking-wide text-[var(--green-bright)]">Glorias</span>
-            </div>
-
-            {/* indicador de rivalidade vs Brasil */}
-            {rivalGap !== null && (
-              <div className="mt-3">
-                {rivalGap > 0 ? (
-                  <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] ring-1 ring-white/8 px-3 py-2">
-                    <span className="text-base leading-none">🇧🇷</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">Faltan para superar a Brasil</div>
-                      <div className="font-display text-lg font-extrabold text-[var(--gold)] leading-tight">
-                        {rivalGap.toLocaleString("es-AR")} Glorias
-                      </div>
-                    </div>
-                    <button onClick={onCTA} className="shrink-0 rounded-xl bg-[var(--green)]/20 hover:bg-[var(--green)]/30 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--green-bright)] transition-colors">
-                      ¡Apostar!
-                    </button>
+            {/* card da seleção */}
+            <div className="gfc-scanline mt-5 rounded-3xl bg-white/[0.04] ring-1 ring-[var(--green)]/20 p-4 sm:p-5 backdrop-blur gfc-box-neon">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-5xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">Tu selección</div>
+                    <div className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-white">{userCountry.name}</div>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2 rounded-xl bg-[var(--green)]/10 ring-1 ring-[var(--green)]/30 px-3 py-2 gfc-pop">
-                    <span className="text-xl leading-none">🏆</span>
-                    <div>
-                      <div className="font-display text-base font-extrabold text-[var(--green-bright)] leading-tight">¡Argentina #1 en el mundo!</div>
-                      <div className="text-[11px] text-white/40 mt-0.5">Seguí apoyando para mantener la cima</div>
-                    </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">Posición</div>
+                  <div className="font-display text-3xl sm:text-4xl font-extrabold leading-none text-[var(--gold)]">#{userRank}</div>
+                </div>
+              </div>
+              <div className="mt-4 border-t border-white/8 pt-4">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">Total de Glorias</div>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <LiveCounter value={userCountry.total_points} className="font-display text-[36px] sm:text-5xl font-extrabold leading-none text-white" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-[var(--green-bright)]">Glorias</span>
+                </div>
+                {rivalGap !== null && (
+                  <div className="mt-3">
+                    {rivalGap > 0 ? (
+                      <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] ring-1 ring-white/8 px-3 py-2">
+                        <span className="text-sm">🇧🇷</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Faltan para superar a Brasil</div>
+                          <div className="font-display text-base font-extrabold text-[var(--gold)] leading-tight">{rivalGap.toLocaleString("es-AR")} Glorias</div>
+                        </div>
+                        <button onClick={onCTA} className="shrink-0 rounded-xl bg-[var(--green)]/20 hover:bg-[var(--green)]/30 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[var(--green-bright)] transition-colors">Apostar!</button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 rounded-xl bg-[var(--green)]/10 ring-1 ring-[var(--green)]/30 px-3 py-2 gfc-pop">
+                        <span className="text-lg">🏆</span>
+                        <div>
+                          <div className="font-display text-sm font-extrabold text-[var(--green-bright)]">Argentina #1 en el mundo!</div>
+                          <div className="text-[10px] text-white/40 mt-0.5">Segui apoyando para mantener la cima</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
+            </div>
+
+            {/* contador global + CTA */}
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-sm text-white/50">
+                <span>🌎</span>
+                <LiveCounter value={globalToday} duration={600} className="font-display font-extrabold text-white" />
+                <span>Glorias hoy</span>
+              </div>
+              <button onClick={onCTA}
+                className="gfc-cta-pulse inline-flex items-center gap-1.5 rounded-2xl px-5 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-[#04130c] transition-all hover:brightness-110 active:scale-[0.97]"
+                style={{background:"var(--green)", boxShadow:"0 0 20px rgba(16,185,129,0.4)"}}>
+                Dar Glorias
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* contador global secundário */}
-        <div className="gfc-enter gfc-enter-4 mt-5 flex items-center gap-2 text-sm text-white/55">
-          <span className="text-base">🌎</span>
-          <LiveCounter value={globalToday} duration={600} className="font-display font-extrabold text-white" />
-          <span>Glorias dadas hoy en el mundo</span>
-        </div>
-
-        {/* CTA primário */}
-        <button
-          onClick={onCTA}
-          className="gfc-enter gfc-enter-5 gfc-cta-pulse mt-7 hidden sm:inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green)] px-8 py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-xl shadow-[var(--green)]/30 transition-all hover:bg-[var(--green-bright)] active:scale-[0.98]"
-        >
-          Dar Glorias
-        </button>
-      </div>
+        </div>{/* end flex row */}
+      </div>{/* end max-w */}
     </header>
   );
 }
@@ -192,7 +188,7 @@ function LiveRanking({ countries, userIso2, changedId, motion, bare }) {
    ------------------------------------------------------------------------ */
 function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry, rivalGap, brazilPoints }) {
   const currency = window.GFC.currencyForCountry(currencyCountry);
-  const [sectionRef, revealClass] = useScrollReveal();
+  const revealClass = ""; /* sem scroll reveal — seção fica no topo */
 
   /* contador de apoiadores hoje — sobe lentamente para criar prova social */
   const [todayCount, setTodayCount] = useState(1247 + Math.floor((Date.now() / 1000) % 300));
@@ -211,7 +207,7 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
   const bestBonus = bestPkg ? Math.round(bestPkg.points * (bestPkg.bonus || 0)) : 0;
 
   return (
-    <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 pt-4 pb-10 sm:pb-14 " + revealClass}>
+    <section id="apoiar" className="scroll-mt-4 px-5 pt-2 pb-10 sm:pb-14">
       <div className="mx-auto max-w-3xl">
 
         {/* === Barra de urgência === */}
