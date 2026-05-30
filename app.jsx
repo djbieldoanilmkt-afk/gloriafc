@@ -79,7 +79,7 @@ function App() {
       applyGlory(countryId, pkg.points, name);
       setBusyId(null);
       setConfettiKey((k) => k + 1);
-      setToast(`+${pkg.points.toLocaleString("pt-BR")} Glórias para ${userCountry.flag_emoji} ${userCountry.name}!`);
+      setToast(`+${pkg.points.toLocaleString("es-AR")} Glorias para ${userCountry.flag_emoji} ${userCountry.name}!`);
       setTimeout(() => setToast(null), 2600);
     }, 650);
   };
@@ -135,7 +135,7 @@ function App() {
           onClick={scrollToApoiar}
           className="gfc-cta-pulse w-full rounded-2xl bg-[var(--green)] py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg active:scale-[0.98] transition-transform"
         >
-          Dar Glórias
+          Dar Glorias
         </button>
       </div>
 
@@ -155,7 +155,7 @@ function App() {
       <TweaksPanel>
         <TweakSection label="Visual" />
         <TweakColor
-          label="Acento"
+          label="Color"
           value={t.accent}
           options={[
             ["#10b981", "#34d399", "#fbbf24"],
@@ -165,20 +165,20 @@ function App() {
           onChange={(v) => setTweak("accent", v)}
         />
         <TweakRadio
-          label="Fonte dos números"
+          label="Fuente de números"
           value={t.numberFont}
           options={["condensed", "block", "heavy"]}
           onChange={(v) => setTweak("numberFont", v)}
         />
-        <TweakSection label="Movimento" />
+        <TweakSection label="Movimiento" />
         <TweakRadio
-          label="Intensidade"
+          label="Intensidad"
           value={t.motion}
           options={["subtle", "energetic", "off"]}
           onChange={(v) => setTweak("motion", v)}
         />
         <TweakToggle
-          label="Atualizações ao vivo"
+          label="Actualizaciones en vivo"
           value={t.liveUpdates}
           onChange={(v) => setTweak("liveUpdates", v)}
         />

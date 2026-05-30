@@ -40,14 +40,14 @@ function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-70" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--green)]" />
           </span>
-          Placar mundial ao vivo · rumo a 2026
+          Marcador mundial en vivo · rumbo a 2026
         </div>
 
         <h1 className="gfc-enter gfc-enter-2 mt-4 font-display text-[40px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
-          Quanto a sua<br />torcida vale?
+          ¿Cuánto vale<br />tu hinchada?
         </h1>
         <p className="gfc-enter gfc-enter-3 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
-          Dê Glórias para a sua seleção e faça ela subir no ranking mundial de torcida. Apoio simbólico — sem prêmio, sem aposta.
+          Dale Glorias a tu selección y hacela subir en el ranking mundial de hinchada. Apoyo simbólico — sin premio, sin apuesta.
         </p>
 
         {/* card da seleção detectada */}
@@ -56,24 +56,24 @@ function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
             <div className="flex items-center gap-4">
               <span className="text-6xl sm:text-7xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Sua seleção</div>
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Tu selección</div>
                 <div className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">{userCountry.name}</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Posição</div>
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Posición</div>
               <div className="font-display text-4xl sm:text-5xl font-extrabold leading-none text-[var(--gold)]">#{userRank}</div>
             </div>
           </div>
 
           <div className="mt-6 border-t border-white/8 pt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Total de Glórias</div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Total de Glorias</div>
             <div className="mt-1 flex items-baseline gap-2.5">
               <LiveCounter
                 value={userCountry.total_points}
                 className="font-display text-[44px] sm:text-7xl font-extrabold leading-none text-white"
               />
-              <span className="text-sm font-bold uppercase tracking-wide text-[var(--green-bright)]">Glórias</span>
+              <span className="text-sm font-bold uppercase tracking-wide text-[var(--green-bright)]">Glorias</span>
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@ function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
         <div className="gfc-enter gfc-enter-5 mt-5 flex items-center gap-2 text-sm text-white/55">
           <span className="text-base">🌎</span>
           <LiveCounter value={globalToday} duration={600} className="font-display font-extrabold text-white" />
-          <span>Glórias dadas hoje no mundo</span>
+          <span>Glorias dadas hoy en el mundo</span>
         </div>
 
         {/* CTA primário */}
@@ -90,7 +90,7 @@ function HeroScoreboard({ userCountry, userRank, globalToday, onCTA }) {
           onClick={onCTA}
           className="gfc-enter gfc-enter-6 gfc-cta-pulse mt-7 hidden sm:inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green)] px-8 py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-xl shadow-[var(--green)]/30 transition-all hover:bg-[var(--green-bright)] active:scale-[0.98]"
         >
-          Dar Glórias
+          Dar Glorias
         </button>
       </div>
     </header>
@@ -140,7 +140,7 @@ function LiveRanking({ countries, userIso2, changedId, motion }) {
   return (
     <section className="px-5 py-10 sm:py-14">
       <div className="mx-auto max-w-3xl">
-        <SectionHeading kicker="Ranking ao vivo" title="Quem está torcendo mais" />
+        <SectionHeading kicker="Ranking en vivo" title="¿Quién está alentando más?" />
 
         {/* user sticky */}
         {showSticky && (
@@ -187,9 +187,9 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
       <div className="mx-auto max-w-3xl">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            kicker="Apoiar"
-            title="Escolha o seu pacote"
-            sub={`Apoiando ${userCountry.flag_emoji} ${userCountry.name}`}
+            kicker="Apoyar"
+            title="Elegí tu paquete"
+            sub={`Apoyando a ${userCountry.flag_emoji} ${userCountry.name}`}
           />
           <CurrencySelector countries={countries} value={currencyCountry} onChange={onCurrencyChange} />
         </div>
@@ -208,19 +208,19 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
 
         {/* nome no mural (opt-in) */}
         <div className="mt-6 rounded-2xl bg-white/[0.03] ring-1 ring-white/8 p-4 sm:p-5">
-          <label className="block text-[11px] font-semibold uppercase tracking-widest text-white/45">
-            Seu nome no mural <span className="text-white/30">(opcional)</span>
+          <label className=”block text-[11px] font-semibold uppercase tracking-widest text-white/45”>
+            Tu nombre en el mural <span className=”text-white/30”>(opcional)</span>
           </label>
           <input
-            type="text"
+            type=”text”
             value={displayName}
             onChange={(e) => onNameChange(e.target.value)}
             maxLength={24}
-            placeholder="Ex.: Pelé do bairro"
-            className="mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
+            placeholder=”Ej.: Messi del barrio”
+            className=”mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50”
           />
-          <p className="mt-2 text-[11px] leading-relaxed text-white/35">
-            ⚠️ Ao preencher, seu nome aparece publicamente no feed “Últimas Glórias”. Deixe em branco para apoiar como Anônimo.
+          <p className=”mt-2 text-[11px] leading-relaxed text-white/35”>
+            ⚠️ Al completar, tu nombre aparece públicamente en el feed “Últimas Glorias”. Dejalo vacío para apoyar como Anónimo.
           </p>
         </div>
       </div>
@@ -236,7 +236,7 @@ function LiveFeed({ log, freshId, motion }) {
   return (
     <section ref={sectionRef} className={"px-5 py-10 sm:py-14 " + revealClass}>
       <div className="mx-auto max-w-3xl">
-        <SectionHeading kicker="Últimas Glórias" title="Acontecendo agora" />
+        <SectionHeading kicker="Últimas Glorias" title="Pasando ahora" />
         <div className="mt-6 flex flex-col gap-2">
           {log.map((item) => (
             <LogItem key={item._id} item={item} fresh={item._id === freshId} motion={motion} />
@@ -258,13 +258,13 @@ function SiteFooter() {
           Glória<span className="text-[var(--green)]">FC</span>
         </div>
         <nav className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/55">
-          <a href="#" className="hover:text-white transition-colors">Termos</a>
-          <a href="#" className="hover:text-white transition-colors">Privacidade</a>
-          <a href="#" className="hover:text-white transition-colors">Contato</a>
+          <a href="#" className="hover:text-white transition-colors">Términos</a>
+          <a href="#" className="hover:text-white transition-colors">Privacidad</a>
+          <a href="#" className="hover:text-white transition-colors">Contacto</a>
         </nav>
         <p className="mt-5 max-w-xl text-[12px] leading-relaxed text-white/35">
-          GlóriaFC é uma plataforma de apoio à torcida. Não é jogo de azar, não distribui
-          prêmios e não tem vínculo com nenhuma organização esportiva oficial.
+          GlóriaFC es una plataforma de apoyo a la hinchada. No es juego de azar, no distribuye
+          premios y no tiene vínculo con ninguna organización deportiva oficial.
         </p>
       </div>
     </footer>

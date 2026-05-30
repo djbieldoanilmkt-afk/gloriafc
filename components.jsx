@@ -120,7 +120,7 @@ const LeaderboardRow = React.forwardRef(function LeaderboardRow(
           </span>
           {isUser && (
             <span className="shrink-0 rounded-full bg-[var(--green)]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--green-bright)]">
-              Você
+              Vos
             </span>
           )}
         </div>
@@ -136,7 +136,7 @@ const LeaderboardRow = React.forwardRef(function LeaderboardRow(
             (justChanged && motion !== "off" ? "gfc-pop text-[var(--green-bright)]" : "text-white")
           }
         />
-        <div className="text-[10px] font-medium uppercase tracking-widest text-white/30 -mt-0.5">Glórias</div>
+        <div className="text-[10px] font-medium uppercase tracking-widest text-white/30 -mt-0.5">Glorias</div>
       </div>
     </div>
   );
@@ -160,7 +160,7 @@ function PackageCard({ pkg, currency, onSupport, busy }) {
     >
       {popular && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--green)] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg">
-          Mais popular
+          Más popular
         </span>
       )}
 
@@ -170,13 +170,13 @@ function PackageCard({ pkg, currency, onSupport, busy }) {
         <span className="font-display text-5xl sm:text-6xl font-extrabold leading-none text-white">
           {pkg.points.toLocaleString("pt-BR")}
         </span>
-        <div className="mt-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--green-bright)]">Glórias</div>
+        <div className="mt-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--green-bright)]">Glorias</div>
       </div>
 
       <div className="mt-4 flex items-baseline gap-2">
         <span className="font-display text-2xl font-bold text-white">{price}</span>
         {!pkg.prices[currency] && (
-          <span className="text-[10px] uppercase tracking-wide text-white/35">em USD</span>
+          <span className="text-[10px] uppercase tracking-wide text-white/35">en USD</span>
         )}
       </div>
 
@@ -190,7 +190,7 @@ function PackageCard({ pkg, currency, onSupport, busy }) {
             : "bg-white/10 text-white hover:bg-white/16 ring-1 ring-white/10")
         }
       >
-        {busy ? "Enviando…" : "Apoiar"}
+        {busy ? "Enviando…" : "Apoyar"}
       </button>
     </div>
   );
@@ -217,7 +217,7 @@ function LogItem({ item, fresh, motion }) {
       <span className="text-2xl leading-none shrink-0">{item.flag_emoji}</span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] text-white/90">
-          <span className="font-semibold">{item.display_name || "Anônimo"}</span>
+          <span className="font-semibold">{item.display_name || "Anónimo"}</span>
           <span className="text-white/45"> · {item.country}</span>
         </div>
         <div className="text-[11px] text-white/35">{window.GFC.relativeTime(item.created_at)}</div>
@@ -235,7 +235,7 @@ function LogItem({ item, fresh, motion }) {
 function CurrencySelector({ countries, value, onChange }) {
   return (
     <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.04] ring-1 ring-white/10 pl-3.5 pr-1.5 py-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-white/45">Moeda</span>
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-white/45">Moneda</span>
       <div className="relative">
         <select
           value={value}
