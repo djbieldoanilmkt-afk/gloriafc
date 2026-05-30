@@ -1404,19 +1404,19 @@ function SupportSection({ packages, countries, currencyCountry, onCurrencyChange
 
         {/* nome no mural (opt-in) */}
         <div className="mt-6 rounded-2xl bg-white/[0.03] ring-1 ring-white/8 p-4 sm:p-5">
-          <label className=”block text-[11px] font-semibold uppercase tracking-widest text-white/45”>
-            Tu nombre en el mural <span className=”text-white/30”>(opcional)</span>
+          <label className="block text-[11px] font-semibold uppercase tracking-widest text-white/45">
+            Tu nombre en el mural <span className="text-white/30">(opcional)</span>
           </label>
           <input
-            type=”text”
+            type="text"
             value={displayName}
             onChange={(e) => onNameChange(e.target.value)}
             maxLength={24}
-            placeholder=”Ej.: Messi del barrio”
-            className=”mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50”
+            placeholder="Ej.: Messi del barrio"
+            className="mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
           />
-          <p className=”mt-2 text-[11px] leading-relaxed text-white/35”>
-            ⚠️ Al completar, tu nombre aparece públicamente en el feed “Últimas Glorias”. Dejalo vacío para apoyar como Anónimo.
+          <p className="mt-2 text-[11px] leading-relaxed text-white/35">
+            ⚠️ Al completar, tu nombre aparece públicamente en el feed "Últimas Glorias". Dejalo vacío para apoyar como Anónimo.
           </p>
         </div>
       </div>
