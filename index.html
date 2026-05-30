@@ -168,13 +168,1524 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-  <!-- mock data (plain JS, carrega primeiro) -->
-  <script src="data.js"></script>
+  <!-- dados -->
+  <script>
+/* ============================================================================
+   GlóriaFC — MOCK DATA
+   Estes arrays simulam o backend. Os NOMES DE CAMPO foram escolhidos para
+   espelhar tabelas do Supabase — basta trocar os mocks por chamadas reais.
+   ========================================================================= */
 
-  <!-- componentes e seções (Babel) -->
-  <script type="text/babel" src="tweaks-panel.js"></script>
-  <script type="text/babel" src="components.js"></script>
-  <script type="text/babel" src="sections.js"></script>
-  <script type="text/babel" src="app.js"></script>
+window.GFC = {
+
+  /* Selección detectada por IP (placeholder). iso2 del país del usuario. */
+  detectedCountry: "AR",
+
+  /* ----- countries -----------------------------------------------------
+     [{ id, iso2, name, flag_emoji, total_points }]                       */
+  countries: [
+    { id: 1,  iso2: "BR", name: "Brasil",         flag_emoji: "🇧🇷", total_points: 1284500 },
+    { id: 2,  iso2: "AR", name: "Argentina",      flag_emoji: "🇦🇷", total_points: 1274500 },
+    { id: 3,  iso2: "FR", name: "Francia",        flag_emoji: "🇫🇷", total_points: 1047800 },
+    { id: 4,  iso2: "ES", name: "España",         flag_emoji: "🇪🇸", total_points:  921400 },
+    { id: 5,  iso2: "EN", name: "Inglaterra",     flag_emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", total_points:  884200 },
+    { id: 6,  iso2: "MX", name: "México",         flag_emoji: "🇲🇽", total_points:  803600 },
+    { id: 7,  iso2: "PT", name: "Portugal",       flag_emoji: "🇵🇹", total_points:  742900 },
+    { id: 8,  iso2: "DE", name: "Alemania",       flag_emoji: "🇩🇪", total_points:  698100 },
+    { id: 9,  iso2: "CO", name: "Colombia",       flag_emoji: "🇨🇴", total_points:  612300 },
+    { id: 10, iso2: "US", name: "Estados Unidos", flag_emoji: "🇺🇸", total_points:  559800 },
+    { id: 11, iso2: "NL", name: "Países Bajos",   flag_emoji: "🇳🇱", total_points:  488700 },
+    { id: 12, iso2: "UY", name: "Uruguay",        flag_emoji: "🇺🇾", total_points:  421500 },
+    { id: 13, iso2: "CL", name: "Chile",          flag_emoji: "🇨🇱", total_points:  388200 },
+    { id: 14, iso2: "PE", name: "Perú",           flag_emoji: "🇵🇪", total_points:  312900 },
+    { id: 15, iso2: "HR", name: "Croacia",        flag_emoji: "🇭🇷", total_points:  274600 },
+    { id: 16, iso2: "JP", name: "Japón",          flag_emoji: "🇯🇵", total_points:  201300 },
+  ],
+
+  /* ----- point_packages ------------------------------------------------
+     [{ id, name, points, prices }]  prices = moneda → valor en CENTAVOS
+     Precio FIJO por moneda (nunca conversión por tipo de cambio).        */
+  point_packages: [
+    {
+      id: "pkg_100", name: "Hincha", points: 100, popular: false,
+      prices: { BRL: 1990, USD: 99, MXN: 1990, ARS: 149000, CLP: 99000, COP: 420000, PEN: 390, EUR: 99 },
+    },
+    {
+      id: "pkg_500", name: "Tribuna", points: 500, popular: true,
+      prices: { BRL: 4990, USD: 299, MXN: 5990, ARS: 399000, CLP: 290000, COP: 1190000, PEN: 1190, EUR: 299 },
+    },
+    {
+      id: "pkg_1000", name: "Estadio Lleno", points: 1000, popular: false,
+      prices: { BRL: 8990, USD: 499, MXN: 9990, ARS: 699000, CLP: 490000, COP: 1990000, PEN: 1990, EUR: 499 },
+    },
+  ],
+
+  /* ----- public_log ----------------------------------------------------
+     [{ country, flag_emoji, points, display_name, created_at }]
+     created_at en ms (Date). display_name null = anónimo.                */
+  public_log: [
+    { country: "Argentina",      flag_emoji: "🇦🇷", points: 500,  display_name: "Diego M.",  created_at: Date.now() - 14000 },
+    { country: "Brasil",         flag_emoji: "🇧🇷", points: 1000, display_name: null,         created_at: Date.now() - 52000 },
+    { country: "Francia",        flag_emoji: "🇫🇷", points: 100,  display_name: "Camille",    created_at: Date.now() - 96000 },
+    { country: "México",         flag_emoji: "🇲🇽", points: 500,  display_name: "Sofía R.",   created_at: Date.now() - 168000 },
+    { country: "Portugal",       flag_emoji: "🇵🇹", points: 100,  display_name: null,         created_at: Date.now() - 240000 },
+    { country: "Colombia",       flag_emoji: "🇨🇴", points: 1000, display_name: "Andrés",     created_at: Date.now() - 420000 },
+  ],
+
+  /* ----- countryToCurrency --------------------------------------------
+     iso2 → código de moeda. Fallback "USD" quando não suportada.         */
+  countryToCurrency: {
+    BR: "BRL", AR: "ARS", FR: "EUR", ES: "EUR", EN: "USD", MX: "MXN",
+    PT: "EUR", DE: "EUR", CO: "COP", US: "USD", NL: "EUR", UY: "USD",
+    CL: "CLP", PE: "PEN", HR: "EUR", JP: "USD",
+  },
+
+  /* ----- currencyMeta --------------------------------------------------
+     Formatação por moeda (symbol + locale para Intl.NumberFormat).       */
+  currencyMeta: {
+    USD: { symbol: "$",  locale: "en-US" },
+    BRL: { symbol: "R$", locale: "pt-BR" },
+    MXN: { symbol: "$",  locale: "es-MX" },
+    ARS: { symbol: "$",  locale: "es-AR" },
+    CLP: { symbol: "$",  locale: "es-CL" },
+    COP: { symbol: "$",  locale: "es-CO" },
+    PEN: { symbol: "S/", locale: "es-PE" },
+    EUR: { symbol: "€",  locale: "de-DE" },
+  },
+
+  /* Moedas com preço definido. Fora desta lista → fallback USD. */
+  supportedCurrencies: ["BRL", "USD", "MXN", "ARS", "CLP", "COP", "PEN", "EUR"],
+};
+
+/* ----- helpers de formatação ------------------------------------------ */
+
+/* Resolve a moeda de um país (com fallback USD). */
+window.GFC.currencyForCountry = function (iso2) {
+  const cur = window.GFC.countryToCurrency[iso2] || "USD";
+  return window.GFC.supportedCurrencies.includes(cur) ? cur : "USD";
+};
+
+/* Formata centavos numa moeda. Usa Intl com locale da currencyMeta. */
+window.GFC.formatPrice = function (cents, currency) {
+  const meta = window.GFC.currencyMeta[currency] || window.GFC.currencyMeta.USD;
+  const value = cents / 100;
+  try {
+    return new Intl.NumberFormat(meta.locale, {
+      style: "currency",
+      currency: currency,
+      maximumFractionDigits: ["CLP", "COP", "ARS"].includes(currency) ? 0 : 2,
+    }).format(value);
+  } catch (e) {
+    return meta.symbol + value.toLocaleString();
+  }
+};
+
+/* Tiempo relativo en ES ("ahora", "hace 2 min", "hace 1 h"). */
+window.GFC.relativeTime = function (ts) {
+  const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (s < 8) return "ahora";
+  if (s < 60) return `hace ${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `hace ${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `hace ${h} h`;
+  return `hace ${Math.floor(h / 24)} d`;
+};
+
+  </script>
+
+  <!-- componentes, seções e app (inline Babel) -->
+  <script type="text/babel">
+
+/* BEGIN USAGE */
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+// Exports (to window): useTweaks, TweaksPanel, TweakSection, TweakRow, TweakSlider,
+//   TweakToggle, TweakRadio, TweakSelect, TweakText, TweakNumber, TweakColor, TweakButton.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// TweakRadio is the segmented control for 2–3 short options (auto-falls-back to
+// TweakSelect past ~16/~10 chars per label); reach for TweakSelect directly when
+// options are many or long. For color tweaks always curate 3-4 options rather than
+// a free picker; an option can also be a whole 2–5 color palette (the stored value
+// is the array). The Tweak* controls are a floor, not a ceiling — build custom
+// controls inside the panel if a tweak calls for UI they don't cover.
+/* END USAGE */
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-omelette-chrome=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+/* ============================================================================
+   GlóriaFC — COMPONENTES REUTILIZÁVEIS
+   LiveCounter · CountryBadge · LeaderboardRow · PackageCard · LogItem ·
+   CurrencySelector
+   ========================================================================= */
+
+const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+/* ---------------------------------------------------------------------------
+   LiveCounter — número que faz count-up animado quando o valor muda.
+   ------------------------------------------------------------------------ */
+function LiveCounter({ value, duration = 900, className = "", style = {} }) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    if (from === to) return;
+    const start = performance.now();
+    cancelAnimationFrame(rafRef.current);
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [value, duration]);
+
+  return (
+    <span className={"tabular-nums " + className} style={style}>
+      {display.toLocaleString("pt-BR")}
+    </span>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   CountryBadge — bandeira + nome, em tamanhos variados.
+   ------------------------------------------------------------------------ */
+function CountryBadge({ flag, name, size = "md", className = "" }) {
+  const flagSize = { sm: "text-2xl", md: "text-3xl", lg: "text-5xl", xl: "text-7xl" }[size];
+  const nameSize = { sm: "text-sm", md: "text-base", lg: "text-2xl", xl: "text-3xl" }[size];
+  return (
+    <div className={"flex items-center gap-3 " + className}>
+      <span className={flagSize + " leading-none drop-shadow"}>{flag}</span>
+      {name && <span className={nameSize + " font-semibold tracking-tight"}>{name}</span>}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   LeaderboardRow — uma linha do ranking. Pulsa quando os pontos mudam.
+   forwardRef para o FLIP de reordenação no pai.
+   ------------------------------------------------------------------------ */
+const LeaderboardRow = React.forwardRef(function LeaderboardRow(
+  { rank, country, isUser, justChanged, motion }, ref
+) {
+  const top3 = rank <= 3;
+
+  const [riseKey, setRiseKey] = useState(0);
+  const [showRise, setShowRise] = useState(false);
+  const prevRankRef = useRef(rank);
+  const riseTimerRef = useRef(null);
+
+  useEffect(() => {
+    const prev = prevRankRef.current;
+    prevRankRef.current = rank;
+    if (motion === "off" || prev === rank) return;
+    if (prev > rank) {
+      clearTimeout(riseTimerRef.current);
+      setRiseKey((k) => k + 1);
+      setShowRise(true);
+      riseTimerRef.current = setTimeout(() => setShowRise(false), 1400);
+    }
+  }, [rank, motion]);
+
+  const shimmerClass =
+    rank === 1 ? "gfc-rank-shimmer" :
+    rank === 2 ? "gfc-rank-shimmer-2" :
+                 "gfc-rank-shimmer-3";
+
+  return (
+    <div
+      ref={ref}
+      className={
+        "relative flex items-center gap-3 sm:gap-4 rounded-2xl px-3 sm:px-4 py-3 " +
+        "transition-colors duration-300 will-change-transform " +
+        (isUser
+          ? "bg-[var(--green)]/12 ring-1 ring-[var(--green)]/45 shadow-[0_0_30px_-12px_var(--green)]"
+          : "bg-white/[0.025] hover:bg-white/[0.05] ring-1 ring-white/5")
+      }
+    >
+      {/* posição */}
+      <div className={"relative w-9 sm:w-11 shrink-0 text-center font-display font-extrabold tabular-nums " +
+        (!top3 ? "text-white/35" : "") + " " +
+        (top3 ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl")}>
+        {top3 ? <span className={shimmerClass}>{rank}</span> : rank}
+        {showRise && (
+          <span
+            key={riseKey}
+            className="gfc-rise-badge absolute left-1/2 top-0 text-[var(--green-bright)] text-xs leading-none pointer-events-none select-none"
+          >
+            ↑
+          </span>
+        )}
+      </div>
+
+      {/* bandeira */}
+      <span className="text-2xl sm:text-3xl leading-none shrink-0 drop-shadow">{country.flag_emoji}</span>
+
+      {/* nome */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="whitespace-nowrap font-semibold tracking-tight text-[15px] sm:text-base text-white/95">
+            {country.name}
+          </span>
+          {isUser && (
+            <span className="shrink-0 rounded-full bg-[var(--green)]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--green-bright)]">
+              Vos
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* pontos */}
+      <div className="shrink-0 text-right">
+        <LiveCounter
+          value={country.total_points}
+          className={
+            "font-display font-extrabold tabular-nums leading-none transition-transform " +
+            (top3 ? "text-xl sm:text-2xl" : "text-lg sm:text-xl") + " " +
+            (justChanged && motion !== "off" ? "gfc-pop text-[var(--green-bright)]" : "text-white")
+          }
+        />
+        <div className="text-[10px] font-medium uppercase tracking-widest text-white/30 -mt-0.5">Glorias</div>
+      </div>
+    </div>
+  );
+});
+
+/* ---------------------------------------------------------------------------
+   PackageCard — card de pacote com preço na moeda local.
+   ------------------------------------------------------------------------ */
+function PackageCard({ pkg, currency, onSupport, busy }) {
+  const popular = pkg.popular;
+  const price = window.GFC.formatPrice(pkg.prices[currency] ?? pkg.prices.USD, pkg.prices[currency] ? currency : "USD");
+
+  return (
+    <div
+      className={
+        "relative flex flex-col rounded-3xl p-5 sm:p-6 transition-all duration-200 gfc-card-hover " +
+        (popular
+          ? "bg-gradient-to-b from-[var(--green)]/18 to-[var(--bg-2)] ring-2 ring-[var(--green)]/60 shadow-[0_20px_60px_-20px_var(--green)]"
+          : "bg-white/[0.03] ring-1 ring-white/8 hover:ring-white/15")
+      }
+    >
+      {popular && (
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--green)] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg">
+          Más popular
+        </span>
+      )}
+
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">{pkg.name}</div>
+
+      <div className="mt-2">
+        <span className="font-display text-5xl sm:text-6xl font-extrabold leading-none text-white">
+          {pkg.points.toLocaleString("pt-BR")}
+        </span>
+        <div className="mt-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--green-bright)]">Glorias</div>
+      </div>
+
+      <div className="mt-4 flex items-baseline gap-2">
+        <span className="font-display text-2xl font-bold text-white">{price}</span>
+        {!pkg.prices[currency] && (
+          <span className="text-[10px] uppercase tracking-wide text-white/35">en USD</span>
+        )}
+      </div>
+
+      <button
+        onClick={onSupport}
+        disabled={busy}
+        className={
+          "mt-5 w-full rounded-2xl py-3.5 text-sm font-extrabold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-50 " +
+          (popular
+            ? "bg-[var(--green)] text-[#04130c] hover:bg-[var(--green-bright)] shadow-lg shadow-[var(--green)]/30"
+            : "bg-white/10 text-white hover:bg-white/16 ring-1 ring-white/10")
+        }
+      >
+        {busy ? "Enviando…" : "Apoyar"}
+      </button>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   LogItem — item do feed "Últimas Glórias".
+   ------------------------------------------------------------------------ */
+function LogItem({ item, fresh, motion }) {
+  const [, force] = useState(0);
+  // re-render periódico p/ atualizar o tempo relativo
+  useEffect(() => {
+    const i = setInterval(() => force((n) => n + 1), 15000);
+    return () => clearInterval(i);
+  }, []);
+
+  return (
+    <div
+      className={
+        "flex items-center gap-3 rounded-2xl bg-white/[0.03] ring-1 ring-white/6 px-3.5 py-2.5 " +
+        (fresh && motion !== "off" ? "gfc-slide-in" : "")
+      }
+    >
+      <span className="text-2xl leading-none shrink-0">{item.flag_emoji}</span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[13px] text-white/90">
+          <span className="font-semibold">{item.display_name || "Anónimo"}</span>
+          <span className="text-white/45"> · {item.country}</span>
+        </div>
+        <div className="text-[11px] text-white/35">{window.GFC.relativeTime(item.created_at)}</div>
+      </div>
+      <div className="shrink-0 font-display font-extrabold text-[var(--green-bright)] text-sm">
+        +{item.points.toLocaleString("pt-BR")}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   CurrencySelector — escolhe país (→ define moeda). Re-renderiza preços.
+   ------------------------------------------------------------------------ */
+function CurrencySelector({ countries, value, onChange }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.04] ring-1 ring-white/10 pl-3.5 pr-1.5 py-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-white/45">Moneda</span>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="appearance-none cursor-pointer rounded-full bg-[#16201b] hover:bg-[#1f2d26] pl-3 pr-8 py-1.5 text-sm font-semibold text-white outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50"
+        >
+          {countries.map((c) => {
+            const cur = window.GFC.currencyForCountry(c.iso2);
+            return (
+              <option key={c.iso2} value={c.iso2} className="bg-[#0d1411] text-white">
+                {c.flag_emoji} {c.name} — {cur}
+              </option>
+            );
+          })}
+        </select>
+        <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.41a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   ConfettiBurst — partículas explodem ao completar um apoio.
+   triggerKey: número que incrementa a cada disparo.
+   ------------------------------------------------------------------------ */
+function ConfettiBurst({ triggerKey }) {
+  const [particles, setParticles] = useState([]);
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    if (!didMount.current) { didMount.current = true; return; }
+    if (!triggerKey) return;
+    const colors = ["#10b981", "#34d399", "#fbbf24", "#ffffff", "#fb923c", "#60a5fa", "#f472b6"];
+    const count = 54;
+    const p = Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: 8 + (i / count) * 84,
+      color: colors[i % colors.length],
+      size: 5 + (i % 5),
+      delay: (i % 12) * 0.032,
+      duration: 0.80 + (i % 6) * 0.13,
+      dx: ((i % 22) - 11) * 15,
+      round: i % 3 !== 0,
+    }));
+    setParticles(p);
+    const t = setTimeout(() => setParticles([]), 2500);
+    return () => clearTimeout(t);
+  }, [triggerKey]);
+
+  if (!particles.length) return null;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 60, overflow: "hidden" }}>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: `${p.left}%`,
+            top: "38%",
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            borderRadius: p.round ? "50%" : "2px",
+            "--cdx": `${p.dx}px`,
+            animation: `gfc-confetti-fall ${p.duration}s ${p.delay}s ease-out forwards`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+Object.assign(window, {
+  LiveCounter, CountryBadge, LeaderboardRow, PackageCard, LogItem, CurrencySelector, ConfettiBurst,
+});
+
+/* ============================================================================
+   GlóriaFC — SEÇÕES
+   HeroScoreboard · LiveRanking · SupportSection · LiveFeed · SiteFooter
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   useScrollReveal — dispara animação quando a seção entra na viewport.
+   ------------------------------------------------------------------------ */
+function useScrollReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible ? "gfc-section-visible" : "gfc-section-hidden"];
+}
+
+/* ---------------------------------------------------------------------------
+   HeroScoreboard — placar ao vivo da seleção do usuário.
+   ------------------------------------------------------------------------ */
+function HeroScoreboard({ userCountry, userRank, globalToday, rivalGap, onCTA }) {
+  return (
+    <header className="relative overflow-hidden px-5 pt-12 pb-9 sm:pt-16 sm:pb-12">
+      {/* holofotes / brilho de estádio */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-[-30%] h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-[var(--green)]/22 blur-[110px]" />
+        <div className="absolute right-[-10%] top-[20%] h-[280px] w-[280px] rounded-full bg-[var(--gold)]/12 blur-[100px]" />
+      </div>
+
+      <div className="mx-auto max-w-3xl">
+        <div className="gfc-enter gfc-enter-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--green)] opacity-70" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--green)]" />
+          </span>
+          Marcador mundial en vivo · rumbo a 2026
+        </div>
+
+        <h1 className="gfc-enter gfc-enter-2 mt-4 font-display text-[40px] leading-[0.95] sm:text-6xl font-extrabold tracking-tight text-white text-balance">
+          ¿Cuánto vale<br />tu hinchada?
+        </h1>
+        <p className="gfc-enter gfc-enter-3 mt-3 max-w-md text-[15px] sm:text-base leading-relaxed text-white/55 text-pretty">
+          Dale Glorias a tu selección y hacela subir en el ranking mundial de hinchada. Apoyo simbólico — sin premio, sin apuesta.
+        </p>
+
+        {/* card da seleção detectada */}
+        <div className="gfc-enter gfc-enter-4 mt-8 rounded-3xl bg-white/[0.04] ring-1 ring-white/8 p-5 sm:p-7 backdrop-blur">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <span className="text-6xl sm:text-7xl leading-none drop-shadow-lg">{userCountry.flag_emoji}</span>
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Tu selección</div>
+                <div className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">{userCountry.name}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Posición</div>
+              <div className="font-display text-4xl sm:text-5xl font-extrabold leading-none text-[var(--gold)]">#{userRank}</div>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-white/8 pt-5">
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Total de Glorias</div>
+            <div className="mt-1 flex items-baseline gap-2.5">
+              <LiveCounter
+                value={userCountry.total_points}
+                className="font-display text-[44px] sm:text-7xl font-extrabold leading-none text-white"
+              />
+              <span className="text-sm font-bold uppercase tracking-wide text-[var(--green-bright)]">Glorias</span>
+            </div>
+
+            {/* indicador de rivalidade vs Brasil */}
+            {rivalGap !== null && (
+              <div className="mt-3">
+                {rivalGap > 0 ? (
+                  <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] ring-1 ring-white/8 px-3 py-2">
+                    <span className="text-base leading-none">🇧🇷</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">Faltan para superar a Brasil</div>
+                      <div className="font-display text-lg font-extrabold text-[var(--gold)] leading-tight">
+                        {rivalGap.toLocaleString("es-AR")} Glorias
+                      </div>
+                    </div>
+                    <button onClick={onCTA} className="shrink-0 rounded-xl bg-[var(--green)]/20 hover:bg-[var(--green)]/30 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--green-bright)] transition-colors">
+                      ¡Apostar!
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-xl bg-[var(--green)]/10 ring-1 ring-[var(--green)]/30 px-3 py-2 gfc-pop">
+                    <span className="text-xl leading-none">🏆</span>
+                    <div>
+                      <div className="font-display text-base font-extrabold text-[var(--green-bright)] leading-tight">¡Argentina #1 en el mundo!</div>
+                      <div className="text-[11px] text-white/40 mt-0.5">Seguí apoyando para mantener la cima</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* contador global secundário */}
+        <div className="gfc-enter gfc-enter-5 mt-5 flex items-center gap-2 text-sm text-white/55">
+          <span className="text-base">🌎</span>
+          <LiveCounter value={globalToday} duration={600} className="font-display font-extrabold text-white" />
+          <span>Glorias dadas hoy en el mundo</span>
+        </div>
+
+        {/* CTA primário */}
+        <button
+          onClick={onCTA}
+          className="gfc-enter gfc-enter-6 gfc-cta-pulse mt-7 hidden sm:inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green)] px-8 py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-xl shadow-[var(--green)]/30 transition-all hover:bg-[var(--green-bright)] active:scale-[0.98]"
+        >
+          Dar Glorias
+        </button>
+      </div>
+    </header>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   LiveRanking — ranking global ordenado. User fixo (sticky) no topo.
+   FLIP para reordenar suavemente quando totais mudam.
+   ------------------------------------------------------------------------ */
+function LiveRanking({ countries, userIso2, changedId, motion }) {
+  const sorted = [...countries].sort((a, b) => b.total_points - a.total_points);
+  const rankOf = {};
+  sorted.forEach((c, i) => (rankOf[c.id] = i + 1));
+
+  const userCountry = sorted.find((c) => c.iso2 === userIso2);
+  // só fixa o usuário no topo quando ele NÃO está já visível entre os primeiros
+  const showSticky = userCountry && rankOf[userCountry.id] > 4;
+
+  // ---- FLIP -------------------------------------------------------------
+  const rowRefs = useRef({});
+  const prevRects = useRef({});
+  useLayoutEffect(() => {
+    if (motion === "off") return;
+    const newRects = {};
+    Object.entries(rowRefs.current).forEach(([id, el]) => {
+      if (el) newRects[id] = el.getBoundingClientRect().top;
+    });
+    Object.entries(newRects).forEach(([id, top]) => {
+      const prev = prevRects.current[id];
+      const el = rowRefs.current[id];
+      if (prev != null && el) {
+        const dy = prev - top;
+        if (Math.abs(dy) > 1) {
+          el.style.transition = "none";
+          el.style.transform = `translateY(${dy}px)`;
+          requestAnimationFrame(() => {
+            el.style.transition = "transform 650ms cubic-bezier(.22,.8,.28,1)";
+            el.style.transform = "";
+          });
+        }
+      }
+    });
+    prevRects.current = newRects;
+  });
+
+  return (
+    <section className="px-5 py-10 sm:py-14">
+      <div className="mx-auto max-w-3xl">
+        <SectionHeading kicker="Ranking en vivo" title="¿Quién está alentando más?" />
+
+        {/* user sticky */}
+        {showSticky && (
+          <div className="sticky top-3 z-20 mb-3">
+            <div className="rounded-2xl bg-[#0a120e]/85 p-1 backdrop-blur-md ring-1 ring-[var(--green)]/30 shadow-2xl">
+              <LeaderboardRow
+                rank={rankOf[userCountry.id]}
+                country={userCountry}
+                isUser={true}
+                justChanged={changedId === userCountry.id}
+                motion={motion}
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          {sorted.map((c) => (
+            <LeaderboardRow
+              key={c.id}
+              ref={(el) => (rowRefs.current[c.id] = el)}
+              rank={rankOf[c.id]}
+              country={c}
+              isUser={c.iso2 === userIso2}
+              justChanged={changedId === c.id}
+              motion={motion}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SupportSection — pacotes com preço em moeda local + nome no mural.
+   ------------------------------------------------------------------------ */
+function SupportSection({ packages, countries, currencyCountry, onCurrencyChange, displayName, onNameChange, onSupport, busyId, userCountry }) {
+  const currency = window.GFC.currencyForCountry(currencyCountry);
+  const [sectionRef, revealClass] = useScrollReveal();
+
+  return (
+    <section ref={sectionRef} id="apoiar" className={"scroll-mt-4 px-5 py-10 sm:py-14 " + revealClass}>
+      <div className="mx-auto max-w-3xl">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeading
+            kicker="Apoyar"
+            title="Elegí tu paquete"
+            sub={`Apoyando a ${userCountry.flag_emoji} ${userCountry.name}`}
+          />
+          <CurrencySelector countries={countries} value={currencyCountry} onChange={onCurrencyChange} />
+        </div>
+
+        <div className="mt-7 grid gap-4 sm:grid-cols-3">
+          {packages.map((p) => (
+            <PackageCard
+              key={p.id}
+              pkg={p}
+              currency={currency}
+              busy={busyId === p.id}
+              onSupport={() => onSupport(p.id, userCountry.id, currency, displayName)}
+            />
+          ))}
+        </div>
+
+        {/* nome no mural (opt-in) */}
+        <div className="mt-6 rounded-2xl bg-white/[0.03] ring-1 ring-white/8 p-4 sm:p-5">
+          <label className=”block text-[11px] font-semibold uppercase tracking-widest text-white/45”>
+            Tu nombre en el mural <span className=”text-white/30”>(opcional)</span>
+          </label>
+          <input
+            type=”text”
+            value={displayName}
+            onChange={(e) => onNameChange(e.target.value)}
+            maxLength={24}
+            placeholder=”Ej.: Messi del barrio”
+            className=”mt-2 w-full rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/25 outline-none ring-1 ring-white/10 focus:ring-[var(--green)]/50”
+          />
+          <p className=”mt-2 text-[11px] leading-relaxed text-white/35”>
+            ⚠️ Al completar, tu nombre aparece públicamente en el feed “Últimas Glorias”. Dejalo vacío para apoyar como Anónimo.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   LiveFeed — feed das compras recentes.
+   ------------------------------------------------------------------------ */
+function LiveFeed({ log, freshId, motion }) {
+  const [sectionRef, revealClass] = useScrollReveal();
+  return (
+    <section ref={sectionRef} className={"px-5 py-10 sm:py-14 " + revealClass}>
+      <div className="mx-auto max-w-3xl">
+        <SectionHeading kicker="Últimas Glorias" title="Pasando ahora" />
+        <div className="mt-6 flex flex-col gap-2">
+          {log.map((item) => (
+            <LogItem key={item._id} item={item} fresh={item._id === freshId} motion={motion} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SiteFooter
+   ------------------------------------------------------------------------ */
+function SiteFooter() {
+  return (
+    <footer className="mt-6 border-t border-white/8 px-5 py-10 pb-28 sm:pb-12">
+      <div className="mx-auto max-w-3xl">
+        <div className="font-display text-2xl font-extrabold tracking-tight text-white">
+          Glória<span className="text-[var(--green)]">FC</span>
+        </div>
+        <nav className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/55">
+          <a href="#" className="hover:text-white transition-colors">Términos</a>
+          <a href="#" className="hover:text-white transition-colors">Privacidad</a>
+          <a href="#" className="hover:text-white transition-colors">Contacto</a>
+        </nav>
+        <p className="mt-5 max-w-xl text-[12px] leading-relaxed text-white/35">
+          GlóriaFC es una plataforma de apoyo a la hinchada. No es juego de azar, no distribuye
+          premios y no tiene vínculo con ninguna organización deportiva oficial.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SectionHeading — cabeçalho de seção padronizado.
+   ------------------------------------------------------------------------ */
+function SectionHeading({ kicker, title, sub }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--green-bright)]">
+        <span className="h-px w-6 bg-[var(--green)]/60" />
+        {kicker}
+      </div>
+      <h2 className="mt-2 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{title}</h2>
+      {sub && <p className="mt-1 text-sm text-white/45">{sub}</p>}
+    </div>
+  );
+}
+
+Object.assign(window, {
+  HeroScoreboard, LiveRanking, SupportSection, LiveFeed, SiteFooter, SectionHeading,
+});
+
+/* ============================================================================
+   GlóriaFC — APP PRINCIPAL
+   Estado, tempo real simulado, handler de apoio, tweaks.
+   ========================================================================= */
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": ["#10b981", "#34d399", "#fbbf24"],
+  "numberFont": "condensed",
+  "motion": "energetic",
+  "liveUpdates": true
+}/*EDITMODE-END*/;
+
+const FONT_MAP = {
+  condensed: "'Saira Condensed', sans-serif",
+  block:     "'Anton', sans-serif",
+  heavy:     "'Archivo', sans-serif",
+};
+
+let _logId = 1000;
+const SUPPORT_POINTS = [100, 500, 1000];
+const SAMPLE_NAMES = ["Lucas", "María", "João P.", "Andrés", "Sofia", "Diego", "Hiro", "Anna", "Marco", null, null, "Thiago", "Valentina"];
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  const [countries, setCountries] = useState(() =>
+    window.GFC.countries.map((c) => ({ ...c }))
+  );
+  const [log, setLog] = useState(() =>
+    window.GFC.public_log.map((l) => ({ ...l, _id: ++_logId }))
+  );
+  const [globalToday, setGlobalToday] = useState(284750);
+  const [currencyCountry, setCurrencyCountry] = useState(window.GFC.detectedCountry);
+  const [displayName, setDisplayName] = useState("");
+  const [busyId, setBusyId] = useState(null);
+  const [changedId, setChangedId] = useState(null);
+  const [freshId, setFreshId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [confettiKey, setConfettiKey] = useState(0);
+
+  const userIso2 = window.GFC.detectedCountry;
+  const userCountry = countries.find((c) => c.iso2 === userIso2);
+  const sortedForRank = [...countries].sort((a, b) => b.total_points - a.total_points);
+  const userRank = sortedForRank.findIndex((c) => c.iso2 === userIso2) + 1;
+
+  const brazilCountry = countries.find((c) => c.iso2 === "BR");
+  const rivalGap = brazilCountry && userCountry && userIso2 !== "BR"
+    ? brazilCountry.total_points - userCountry.total_points
+    : null;
+
+  /* ----- aplica tweaks (cores + fonte) -------------------------------- */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--green", t.accent[0]);
+    root.style.setProperty("--green-bright", t.accent[1]);
+    root.style.setProperty("--gold", t.accent[2]);
+    root.style.setProperty("--font-display", FONT_MAP[t.numberFont] || FONT_MAP.condensed);
+  }, [t.accent, t.numberFont]);
+
+  /* ----- helper: aplica pontos a um país e registra no feed ----------- */
+  const applyGlory = (countryId, points, name) => {
+    setCountries((prev) =>
+      prev.map((c) => (c.id === countryId ? { ...c, total_points: c.total_points + points } : c))
+    );
+    setChangedId(countryId);
+    setTimeout(() => setChangedId(null), 1100);
+    setGlobalToday((g) => g + points);
+
+    const country = window.GFC.countries.find((c) => c.id === countryId);
+    const id = ++_logId;
+    setLog((prev) =>
+      [{ _id: id, country: country.name, flag_emoji: country.flag_emoji, points, display_name: name || null, created_at: Date.now() }, ...prev].slice(0, 10)
+    );
+    setFreshId(id);
+    setTimeout(() => setFreshId(null), 1000);
+  };
+
+  /* ----- handler de apoio (placeholder — checkout Stripe entra depois) - */
+  const onSupport = (packageId, countryId, currency, name) => {
+    const pkg = window.GFC.point_packages.find((p) => p.id === packageId);
+    console.log("[GlóriaFC] onSupport →", { packageId, countryId, currency, displayName: name });
+    setBusyId(packageId);
+    setTimeout(() => {
+      applyGlory(countryId, pkg.points, name);
+      setBusyId(null);
+      setConfettiKey((k) => k + 1);
+      setToast(`+${pkg.points.toLocaleString("es-AR")} Glorias para ${userCountry.flag_emoji} ${userCountry.name}!`);
+      setTimeout(() => setToast(null), 2600);
+    }, 650);
+  };
+
+  /* ----- tempo real simulado ------------------------------------------ */
+  useEffect(() => {
+    if (!t.liveUpdates) return;
+    const ids = window.GFC.countries.map((c) => c.id);
+    const interval = setInterval(() => {
+      const countryId = ids[Math.floor(Math.random() * ids.length)];
+      const points = SUPPORT_POINTS[Math.floor(Math.random() * SUPPORT_POINTS.length)];
+      const name = SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)];
+      applyGlory(countryId, points, name);
+    }, t.motion === "off" ? 4200 : 2600);
+    return () => clearInterval(interval);
+  }, [t.liveUpdates, t.motion]);
+
+  /* ----- decaimento de pontos — hinchada esfría sin apoyo ------------- */
+  useEffect(() => {
+    if (!t.liveUpdates) return;
+    const decay = setInterval(() => {
+      setCountries((prev) =>
+        prev.map((c) => ({
+          ...c,
+          total_points: Math.max(10000, Math.floor(c.total_points * 0.9992)),
+        }))
+      );
+    }, 60000); // 0,08% a menos por minuto para todos os países
+    return () => clearInterval(decay);
+  }, [t.liveUpdates]);
+
+  const scrollToApoiar = () => {
+    const el = document.getElementById("apoiar");
+    if (el) window.scrollTo({ top: el.offsetTop - 12, behavior: "smooth" });
+  };
+
+  return (
+    <div className="min-h-screen">
+      <HeroScoreboard
+        userCountry={userCountry}
+        userRank={userRank}
+        globalToday={globalToday}
+        rivalGap={rivalGap}
+        onCTA={scrollToApoiar}
+      />
+
+      <LiveRanking countries={countries} userIso2={userIso2} changedId={changedId} motion={t.motion} />
+
+      <SupportSection
+        packages={window.GFC.point_packages}
+        countries={countries}
+        currencyCountry={currencyCountry}
+        onCurrencyChange={setCurrencyCountry}
+        displayName={displayName}
+        onNameChange={setDisplayName}
+        onSupport={onSupport}
+        busyId={busyId}
+        userCountry={userCountry}
+      />
+
+      <LiveFeed log={log} freshId={freshId} motion={t.motion} />
+
+      <SiteFooter />
+
+      {/* CTA fixo no mobile */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#070b0a]/90 px-4 py-3 backdrop-blur-md sm:hidden">
+        <button
+          onClick={scrollToApoiar}
+          className="gfc-cta-pulse w-full rounded-2xl bg-[var(--green)] py-4 font-display text-lg font-extrabold uppercase tracking-wider text-[#04130c] shadow-lg active:scale-[0.98] transition-transform"
+        >
+          Dar Glorias
+        </button>
+      </div>
+
+      {/* confetti ao apoiar */}
+      <ConfettiBurst triggerKey={confettiKey} />
+
+      {/* toast de confirmação */}
+      {toast && (
+        <div className="fixed bottom-24 sm:bottom-6 left-1/2 z-40 -translate-x-1/2 gfc-toast">
+          <div className="rounded-2xl bg-[var(--green)] px-5 py-3 font-display text-sm font-extrabold uppercase tracking-wide text-[#04130c] shadow-2xl">
+            {toast}
+          </div>
+        </div>
+      )}
+
+      {/* ----- Tweaks ----- */}
+      <TweaksPanel>
+        <TweakSection label="Visual" />
+        <TweakColor
+          label="Color"
+          value={t.accent}
+          options={[
+            ["#10b981", "#34d399", "#fbbf24"],
+            ["#22c55e", "#4ade80", "#f59e0b"],
+            ["#14b8a6", "#2dd4bf", "#fb923c"],
+          ]}
+          onChange={(v) => setTweak("accent", v)}
+        />
+        <TweakRadio
+          label="Fuente de números"
+          value={t.numberFont}
+          options={["condensed", "block", "heavy"]}
+          onChange={(v) => setTweak("numberFont", v)}
+        />
+        <TweakSection label="Movimiento" />
+        <TweakRadio
+          label="Intensidad"
+          value={t.motion}
+          options={["subtle", "energetic", "off"]}
+          onChange={(v) => setTweak("motion", v)}
+        />
+        <TweakToggle
+          label="Actualizaciones en vivo"
+          value={t.liveUpdates}
+          onChange={(v) => setTweak("liveUpdates", v)}
+        />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
 </body>
 </html>
