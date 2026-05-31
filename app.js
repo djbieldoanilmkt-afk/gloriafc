@@ -94,9 +94,92 @@ function App() {
     setTimeout(() => setFreshId(null), 1000);
   };
 
-  /* ----- handler de apoio (placeholder — checkout Stripe entra depois) - */
+  /* ----- detecta retorno do Stripe (?paid= ou ?canceled=) -------------- */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    /* pagamento cancelado */
+    if (params.get("canceled")) {
+      window.history.replaceState({}, "", "/");
+      try { localStorage.removeItem("gfc_pending"); } catch(_) {}
+      setToast("Pago cancelado. Puedes intentarlo de nuevo cuando quieras.");
+      setTimeout(() => setToast(null), 4000);
+      return;
+    }
+
+    const paid = params.get("paid");
+    if (!paid) return;
+    window.history.replaceState({}, "", "/");
+
+    /* dedup: evita aplicar pontos duas vezes se o usuário recarregar a URL */
+    const dedupKey = `gfc_applied_${paid}`;
+    try {
+      if (sessionStorage.getItem(dedupKey)) return;
+      sessionStorage.setItem(dedupKey, "1");
+    } catch(_) {}
+
+    const pkg = window.GFC.point_packages.find((p) => p.id === paid);
+    if (!pkg) return;
+
+    let pendingName = null, pendingCountryId = null;
+    try {
+      const p = JSON.parse(localStorage.getItem("gfc_pending") || "null");
+      /* descarta pending expirado (> 30 min) */
+      if (p && p.ts && Date.now() - p.ts < 30 * 60 * 1000) {
+        pendingName = p.name;
+        pendingCountryId = p.countryId;
+      }
+      localStorage.removeItem("gfc_pending");
+    } catch(_) {}
+
+    const cid = pendingCountryId || window.GFC.countries.find((c) => c.iso2 === (window.GFC.detectedCountry))?.id;
+    if (!cid) return;
+
+    const bonus = pkg.bonus || 0;
+    const bonusPoints = Math.round(pkg.points * bonus);
+    const totalPoints = pkg.points + bonusPoints;
+    const country = window.GFC.countries.find((c) => c.id === cid);
+
+    setCountries((prev) => prev.map((c) => c.id === cid ? { ...c, total_points: c.total_points + totalPoints } : c));
+    setGlobalToday((g) => g + totalPoints);
+    setChangedId(cid);
+    setTimeout(() => setChangedId(null), 1100);
+
+    const id = ++_logId;
+    setLog((prev) => [{
+      _id: id, country: country.name, flag_emoji: country.flag_emoji,
+      points: totalPoints, bonusPoints, display_name: pendingName || null,
+      created_at: Date.now(), _isUser: true,
+    }, ...prev].slice(0, 10));
+    setFreshId(id);
+    setTimeout(() => setFreshId(null), 1000);
+
+    setConfettiKey((k) => k + 1);
+    const bonusMsg = bonusPoints > 0 ? ` (+${bonusPoints.toLocaleString("es-AR")} bonus!)` : "";
+    setToast(`+${totalPoints.toLocaleString("es-AR")} Glorias${bonusMsg} para ${country?.flag_emoji} ${country?.name}! ✅`);
+    setTimeout(() => setToast(null), 4000);
+  }, []);
+
+  /* ----- handler de apoio — redireciona para Stripe -------------------- */
+  const [redirectingId, setRedirectingId] = useState(null);
+
   const onSupport = (packageId, countryId, currency, name) => {
     const pkg = window.GFC.point_packages.find((p) => p.id === packageId);
+
+    if (pkg.stripeUrl) {
+      try {
+        localStorage.setItem("gfc_pending", JSON.stringify({
+          packageId, countryId,
+          name: name || displayName,
+          ts: Date.now(),
+        }));
+      } catch(_) {}
+      setRedirectingId(packageId);
+      setTimeout(() => { window.location.href = pkg.stripeUrl; }, 300);
+      return;
+    }
+
+    /* fallback simulacao (sem stripeUrl) */
     const bonus = pkg.bonus || 0;
     const bonusPoints = Math.round(pkg.points * bonus);
     const totalPoints = pkg.points + bonusPoints;
@@ -223,6 +306,7 @@ function App() {
         onNameChange={setDisplayName}
         onSupport={onSupport}
         busyId={busyId}
+        redirectingId={redirectingId}
         userCountry={userCountry}
         rivalGap={rivalGap}
         brazilPoints={brazilCountry ? brazilCountry.total_points : 0}

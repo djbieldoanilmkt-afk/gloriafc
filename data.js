@@ -36,14 +36,17 @@ window.GFC = {
   point_packages: [
     {
       id: "pkg_100", name: "Hincha", points: 100, bonus: 0, popular: false,
+      stripeUrl: "https://buy.stripe.com/eVqfZg1Ar0onfIGc2Qgfu00",
       prices: { BRL: 1990, USD: 99, MXN: 1990, ARS: 149000, CLP: 99000, COP: 420000, PEN: 390, EUR: 99 },
     },
     {
       id: "pkg_500", name: "Tribuna", points: 500, bonus: 0.10, popular: true,
+      stripeUrl: "https://buy.stripe.com/8x214mcf59YX7ca2sggfu01",
       prices: { BRL: 4990, USD: 299, MXN: 5990, ARS: 399000, CLP: 290000, COP: 1190000, PEN: 1190, EUR: 299 },
     },
     {
       id: "pkg_1000", name: "Estadio Lleno", points: 1000, bonus: 0.50, popular: false,
+      stripeUrl: "https://buy.stripe.com/14AaEW1Ar2wv1RQ4Aogfu02",
       prices: { BRL: 8990, USD: 499, MXN: 9990, ARS: 699000, CLP: 490000, COP: 1990000, PEN: 1990, EUR: 499 },
     },
   ],
