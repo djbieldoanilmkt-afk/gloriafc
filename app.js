@@ -222,15 +222,55 @@ function App() {
   /* ----- tempo real simulado ------------------------------------------ */
   useEffect(() => {
     if (!t.liveUpdates) return;
-    const ids = window.GFC.countries.map((c) => c.id);
+    const allIds = window.GFC.countries.map((c) => c.id);
+    const brId   = window.GFC.countries.find((c) => c.iso2 === "BR")?.id;
+    const arId   = window.GFC.countries.find((c) => c.iso2 === "AR")?.id;
+    const otherIds = allIds.filter((id) => id !== brId && id !== arId);
+
     const interval = setInterval(() => {
-      const countryId = ids[Math.floor(Math.random() * ids.length)];
+      /* pool ponderado: BR 38%, AR 32%, resto 30% distribuído */
+      const roll = Math.random();
+      let countryId;
+      if (roll < 0.38)       countryId = brId;
+      else if (roll < 0.70)  countryId = arId;
+      else                   countryId = otherIds[Math.floor(Math.random() * otherIds.length)];
+
       const points = SUPPORT_POINTS[Math.floor(Math.random() * SUPPORT_POINTS.length)];
-      const name = SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)];
+      const name   = SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)];
       applyGlory(countryId, points, name);
     }, t.motion === "off" ? 4200 : 2600);
     return () => clearInterval(interval);
   }, [t.liveUpdates, t.motion]);
+
+  /* ----- rivalidade BR × AR: gap máximo 15 k, Brasil tende a liderar --- */
+  useEffect(() => {
+    if (!t.liveUpdates) return;
+    const brId = window.GFC.countries.find((c) => c.iso2 === "BR")?.id;
+    const arId = window.GFC.countries.find((c) => c.iso2 === "AR")?.id;
+    if (!brId || !arId) return;
+
+    const rivalry = setInterval(() => {
+      setCountries((prev) => {
+        const br  = prev.find((c) => c.id === brId);
+        const ar  = prev.find((c) => c.id === arId);
+        if (!br || !ar) return prev;
+        const gap = br.total_points - ar.total_points;
+
+        /* Argentina muito na frente (> 15k): Brasil dá surto de recuperação */
+        if (gap < -15000) {
+          const boost = 500 + Math.floor(Math.random() * 1000);
+          return prev.map((c) => c.id === brId ? { ...c, total_points: c.total_points + boost } : c);
+        }
+        /* Brasil muito na frente (> 20k): Argentina encosta */
+        if (gap > 20000) {
+          const boost = 500 + Math.floor(Math.random() * 1000);
+          return prev.map((c) => c.id === arId ? { ...c, total_points: c.total_points + boost } : c);
+        }
+        return prev;
+      });
+    }, 8000); // verifica a cada 8s
+    return () => clearInterval(rivalry);
+  }, [t.liveUpdates]);
 
   /* ----- decaimento de pontos — hinchada esfría sin apoyo ------------- */
   useEffect(() => {
