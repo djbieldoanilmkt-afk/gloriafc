@@ -174,6 +174,20 @@ function App() {
           ts: Date.now(),
         }));
       } catch(_) {}
+
+      /* Meta Pixel — InitiateCheckout */
+      try {
+        const usdPrices = { pkg_100: 0.99, pkg_500: 2.99, pkg_1000: 4.99 };
+        if (window.fbq) fbq('track', 'InitiateCheckout', {
+          currency:     'USD',
+          value:        usdPrices[packageId] || 0.99,
+          content_ids:  [packageId],
+          content_name: pkg.name,
+          content_type: 'product',
+          num_items:    1,
+        });
+      } catch(_) {}
+
       setRedirectingId(packageId);
       setTimeout(() => { window.location.href = pkg.stripeUrl; }, 300);
       return;
