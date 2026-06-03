@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>GlóriaFC — ¡Gracias por tu apoyo!</title>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '826156896972908');
+  fbq('track', 'PageView');
+  fbq('track', 'Purchase', { currency: 'USD', value: 1.00 });
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=826156896972908&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@700;800;900&family=Archivo:wght@500;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:       #10b981;
+      --green-bright:#34d399;
+      --gold:        #fbbf24;
+      --bg:          #070b0a;
+    }
+
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Archivo', sans-serif;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    /* ---- canvas confetti ---- */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---- card principal ---- */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(160deg, rgba(16,185,129,0.13), rgba(7,11,10,1));
+      border: 1px solid rgba(16,185,129,0.35);
+      border-radius: 28px;
+      padding: 40px 32px 36px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(16,185,129,0.18), 0 32px 80px -20px rgba(0,0,0,0.7);
+    }
+
+    .checkmark {
+      width: 72px;
+      height: 72px;
+      background: rgba(16,185,129,0.15);
+      border: 2px solid rgba(16,185,129,0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: pop .45s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    .checkmark svg { width: 36px; height: 36px; }
+
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .logo {
+      font-family: 'Saira Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .logo span { color: var(--green); }
+
+    h1 {
+      font-family: 'Saira Condensed', sans-serif;
+      font-size: clamp(2rem, 8vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -.01em;
+      color: #fff;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--green);
+      text-shadow: 0 0 20px rgba(16,185,129,0.6);
+    }
+
+    .sub {
+      margin-top: 10px;
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+    }
+
+    /* ---- pontos badge ---- */
+    .points-badge {
+      margin: 24px auto 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 20px;
+      padding: 16px 32px;
+      animation: fadeUp .5s .2s both;
+    }
+    .points-badge .pts {
+      font-family: 'Saira Condensed', sans-serif;
+      font-size: clamp(3rem, 14vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--green-bright);
+      text-shadow: 0 0 30px rgba(52,211,153,0.5);
+    }
+    .points-badge .bonus-row {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .points-badge .label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    /* ---- country chip ---- */
+    .country-chip {
+      margin: 18px auto 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      animation: fadeUp .5s .3s both;
+    }
+    .country-chip .flag { font-size: 22px; line-height: 1; }
+
+    /* ---- countdown bar ---- */
+    .countdown-wrap {
+      margin-top: 28px;
+      animation: fadeUp .5s .4s both;
+    }
+    .countdown-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 8px;
+    }
+    .bar-track {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 99px;
+      width: 100%;
+      transform-origin: left;
+      animation: drain 5s linear forwards;
+    }
+    @keyframes drain {
+      from { transform: scaleX(1); }
+      to   { transform: scaleX(0); }
+    }
+
+    /* ---- botão manual ---- */
+    .btn-back {
+      margin-top: 20px;
+      display: inline-block;
+      background: var(--green);
+      color: #04130c;
+      font-family: 'Saira Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 14px 32px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(16,185,129,0.35);
+      transition: filter .15s;
+      animation: fadeUp .5s .5s both;
+    }
+    .btn-back:hover { filter: brightness(1.1); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="card">
+  <div class="logo">Gloria<span>FC</span></div>
+
+  <div class="checkmark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <h1>¡Pago <em>confirmado</em>!</h1>
+  <p class="sub">Tus Glorias ya están contadas.<br>El marcador se actualiza en segundos.</p>
+
+  <div class="points-badge" id="pointsBadge">
+    <div class="pts" id="ptsNumber">—</div>
+    <div class="bonus-row" id="bonusRow" style="display:none"></div>
+    <div class="label">Glorias para tu país</div>
+  </div>
+
+  <div class="country-chip" id="countryChip" style="display:none">
+    <span class="flag" id="chipFlag"></span>
+    <span id="chipName"></span>
+  </div>
+
+  <div class="countdown-wrap">
+    <div class="countdown-text" id="countdownText">Volviendo al marcador en <b id="sec">5</b>s…</div>
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+  </div>
+
+  <a href="/" class="btn-back" id="btnBack">Ver el marcador →</a>
+</div>
+
+<script>
+/* ---------- lê ?paid= e monta a UI ---------- */
+const PACKAGES = {
+  pkg_100:  { points: 100,  bonus: 0,    name: "Hincha" },
+  pkg_500:  { points: 500,  bonus: 0.10, name: "Tribuna" },
+  pkg_1000: { points: 1000, bonus: 0.50, name: "Estadio Lleno" },
+};
+
+const COUNTRIES = {
+  BR: { name: "Brasil",         flag: "🇧🇷" },
+  AR: { name: "Argentina",      flag: "🇦🇷" },
+  FR: { name: "Francia",        flag: "🇫🇷" },
+  ES: { name: "España",         flag: "🇪🇸" },
+  EN: { name: "Inglaterra",     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  MX: { name: "México",         flag: "🇲🇽" },
+  PT: { name: "Portugal",       flag: "🇵🇹" },
+  DE: { name: "Alemania",       flag: "🇩🇪" },
+  CO: { name: "Colombia",       flag: "🇨🇴" },
+  US: { name: "Estados Unidos", flag: "🇺🇸" },
+  UY: { name: "Uruguay",        flag: "🇺🇾" },
+  CL: { name: "Chile",          flag: "🇨🇱" },
+  PE: { name: "Perú",           flag: "🇵🇪" },
+};
+
+const params  = new URLSearchParams(location.search);
+const paidId  = params.get("paid");
+const pkg     = PACKAGES[paidId];
+
+if (pkg) {
+  const bonus       = pkg.bonus || 0;
+  const bonusPoints = Math.round(pkg.points * bonus);
+  const total       = pkg.points + bonusPoints;
+
+  document.getElementById("ptsNumber").textContent = total.toLocaleString("es-AR");
+
+  if (bonusPoints > 0) {
+    const bonusRow = document.getElementById("bonusRow");
+    bonusRow.textContent = `+${bonusPoints.toLocaleString("es-AR")} BONUS incluido`;
+    bonusRow.style.display = "block";
+  }
+}
+
+/* país do gfc_pending */
+let countryIso2 = null;
+try {
+  const p = JSON.parse(localStorage.getItem("gfc_pending") || "null");
+  if (p && p.ts && Date.now() - p.ts < 30 * 60 * 1000) {
+    /* busca iso2 pelo countryId */
+    const idMap = {1:"BR",2:"AR",3:"FR",4:"ES",5:"EN",6:"MX",7:"PT",8:"DE",9:"CO",10:"US",11:"NL",12:"UY",13:"CL",14:"PE",15:"HR",16:"JP"};
+    countryIso2 = idMap[p.countryId] || null;
+  }
+} catch(_) {}
+
+if (countryIso2 && COUNTRIES[countryIso2]) {
+  const c = COUNTRIES[countryIso2];
+  document.getElementById("chipFlag").textContent = c.flag;
+  document.getElementById("chipName").textContent = c.name;
+  document.getElementById("countryChip").style.display = "inline-flex";
+}
+
+/* ---------- countdown e redirect ---------- */
+const dest = paidId ? `/?paid=${paidId}` : "/";
+
+let sec = 5;
+document.getElementById("btnBack").href = dest;
+
+const tick = setInterval(() => {
+  sec--;
+  document.getElementById("sec").textContent = sec;
+  if (sec <= 0) {
+    clearInterval(tick);
+    location.href = dest;
+  }
+}, 1000);
+
+/* ---------- confetti ---------- */
+(function confetti() {
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx    = canvas.getContext("2d");
+  let W = canvas.width  = innerWidth;
+  let H = canvas.height = innerHeight;
+  window.addEventListener("resize", () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+
+  const COLORS = ["#10b981","#34d399","#fbbf24","#f59e0b","#fff","#6ee7b7","#a7f3d0"];
+  const pieces = Array.from({ length: 120 }, () => ({
+    x:  Math.random() * W,
+    y:  Math.random() * H - H,
+    r:  3 + Math.random() * 5,
+    d:  2 + Math.random() * 3,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    tilt: Math.random() * 10 - 5,
+    tiltSpeed: 0.1 + Math.random() * 0.2,
+    angle: 0,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 4, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4);
+      ctx.stroke();
+      p.y  += p.d;
+      p.tilt = Math.sin(p.angle) * 12;
+      p.angle += p.tiltSpeed;
+      if (p.y > H) { p.x = Math.random() * W; p.y = -10; }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
