@@ -17,7 +17,22 @@
   'https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '826156896972908');
   fbq('track', 'PageView');
-  fbq('track', 'Purchase', { currency: 'USD', value: 1.00 });
+  /* valor real do pacote — lido da URL antes do DOM carregar */
+  (function(){
+    var paidId = new URLSearchParams(location.search).get('paid');
+    var prices = { pkg_100: 0.99, pkg_500: 2.99, pkg_1000: 4.99 };
+    var names  = { pkg_100: 'Hincha', pkg_500: 'Tribuna', pkg_1000: 'Estadio Lleno' };
+    var value  = prices[paidId] || 0.99;
+    var name   = names[paidId]  || 'GloriaFC';
+    fbq('track', 'Purchase', {
+      currency:     'USD',
+      value:        value,
+      content_ids:  [paidId || 'pkg_100'],
+      content_name: name,
+      content_type: 'product',
+      num_items:    1,
+    });
+  })();
   </script>
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=826156896972908&ev=PageView&noscript=1"
